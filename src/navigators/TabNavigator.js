@@ -1,7 +1,7 @@
 import React from 'react';
 import {Image} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {InsertUser, VerifyUser} from '../components';
+import {InsertUser, VerifyOptions} from '../components';
 
 
 
@@ -17,10 +17,10 @@ export default function TabNavigator() {
           let iconName;
           if (route.name === 'Insert') {
             iconName = focused? require('../../images/insert_user_active.png'):require('../../images/inser_user_inactive.png');
-          } 
+          }
           if (route.name === 'Verify') {
             iconName = focused? require('../../images/verify_user_active.png'):require('../../images/verify_user_inactive.png');
-          } 
+          }
 
           // You can return any component that you like here!
           return <Image source={iconName} />;
@@ -44,9 +44,9 @@ export default function TabNavigator() {
       }}
       backBehavior= 'history'
       initialRouteName= 'Insert'
-    > 
+    >
       <Tab.Screen name="Insert" component={InsertUser} />
-      <Tab.Screen name="Verify" component={VerifyUser} />
+      <Tab.Screen name="Verify" component={VerifyOptions} />
     </Tab.Navigator>
     );
   }

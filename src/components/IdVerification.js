@@ -9,7 +9,7 @@ import { sha256 } from 'react-native-sha256';
 const rpc = new JsonRpc('https://jungle2.cryptolions.io:443', { fetch });
 
 
-const VerifyUser = ({offline, navigation, camera}) => {
+const IdVerification = ({offline, navigation, camera}) => {
     const [flash, setFlash] = React.useState(false)
     const [modalVisible, setModal] = React.useState(false)
     const [validating, setValidation] = React.useState(false)
@@ -33,7 +33,7 @@ const VerifyUser = ({offline, navigation, camera}) => {
           };
           const { uri } = await camera.takePictureAsync(options);
           const visionResp = await RNTextDetector.detectFromUri(uri);
-          
+
           let ID = processJSON(visionResp)
 
           setID(ID)
@@ -48,16 +48,18 @@ const VerifyUser = ({offline, navigation, camera}) => {
       var ID = ''
       for(var i=0; i<text.length; i++){
         if(/^[A-Z]{2}\s\d{6}$/.test(text[i].text) === true){
-          ID = text[i].text          
+          ID = text[i].text
         }
       }
       return ID
-    } 
+    }
 
     const verification = async () => {
       try{
         setValidation(true)
-
+        if (id === undefined ) {
+          return
+        }
         sha256(id).then(async hash => {
           var resp = await rpc.get_table_rows({
             json: true, // Get the response as json
@@ -72,7 +74,7 @@ const VerifyUser = ({offline, navigation, camera}) => {
             limit: 1 // Here we limit to 1 to get only row
           });
           if(resp.rows.length === 0){
-            setmsg('User doesnt found')
+            setmsg('User was not found')
             setValid(false)
             setModal(true)
           }else if(resp.rows[0].immunity === 1) {
@@ -80,7 +82,7 @@ const VerifyUser = ({offline, navigation, camera}) => {
             setValid(true)
             setModal(true)
           }else{
-            setmsg('User has not immunity')
+            setmsg('User does NOT have immunity')
             setValid(false)
             setModal(true)
           }
@@ -104,13 +106,13 @@ const VerifyUser = ({offline, navigation, camera}) => {
         return(
           <ScrollView style={styles.container}>
             <Text style={styles.texts}>Scan a document...</Text>
-            <RNCamera 
+            <RNCamera
                 ref={ref => {
                     camera = ref;
                 }}
-                type={RNCamera.Constants.Type.back} 
+                type={RNCamera.Constants.Type.back}
                 captureAudio={false}
-                flashMode={flash?RNCamera.Constants.FlashMode.torch:RNCamera.Constants.FlashMode.off} 
+                flashMode={flash?RNCamera.Constants.FlashMode.torch:RNCamera.Constants.FlashMode.off}
                 androidCameraPermissionOptions={{
                     title: 'Permission to use camera',
                     message: 'We need your permission to use your camera',
@@ -141,7 +143,7 @@ const VerifyUser = ({offline, navigation, camera}) => {
                   <Text style={styles.button}>Verify</Text>
               </TouchableHighlight>
             </View>
-            
+
 
             <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
                     {processing? <Text style={[styles.text, {backgroundColor:'rgba(243, 241, 239, 1)', padding: 20}]}>{processing?"Processing . . .":null}</Text> : null}
@@ -162,11 +164,11 @@ const VerifyUser = ({offline, navigation, camera}) => {
                     <Image style={{ height:50, width:50 }} source={valid?require('../../images/green-tick.png'):require('../../images/red-x.png')} resizeMode="contain" />
 
                     <Text style={styles.text}>{}</Text>
-                    
+
                     <TouchableHighlight style={{backgroundColor:`${valid?'green':'red'}`,padding:5,width:100, marginTop:10, justifyContent:'center', alignItems:'center', borderRadius:20}} title="Dismiss" onPress={()=>{setModal(false)}}>
                         <Text style={styles.text}> OK </Text>
                     </TouchableHighlight>
-                    
+
                     </View>
                 </View>
               </Modal>
@@ -176,7 +178,7 @@ const VerifyUser = ({offline, navigation, camera}) => {
     }else if(!isFocused){
         return null
     }
- 
+
 }
 
 
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
       height:200,
       flex: 1,
       alignItems: 'center',
-      width: '100%', 
+      width: '100%',
       overflow: "hidden",
       justifyContent: 'flex-end'
     },
@@ -254,4 +256,4 @@ const styles = StyleSheet.create({
     },
   });
 
-  export default VerifyUser;
+  export default IdVerification;
