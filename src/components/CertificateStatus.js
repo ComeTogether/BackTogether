@@ -21,8 +21,8 @@ const CertificateStatus = ({navigation, userToken}) => {
   const [filterLabel, setFilterLabel] = React.useState('pending');
   const [cert, setCert] = React.useState(null);
   const [wait, setWait] = React.useState(true)
-    const [refresh, setRefresh] = React.useState(false);
-    let un = () => {};
+  const [refresh, setRefresh] = React.useState(false);
+  let un = () => {};
 
   const filterCertificateStatus = (label)=> {
     label === 'all' ? getAllTests() : getFilteredTests(label)
@@ -70,20 +70,39 @@ const CertificateStatus = ({navigation, userToken}) => {
       })
   };
 
+  // function passed to CertificateSummary to change the ticket status
+  const handleStatusChange = async (testRef, newStatus) => {
+    const subscriber = testRef.update({
+      status: newStatus,
+    })
+    .catch((error) => {
+      alert( error)
+    })
+  };
 
   //on load page get tests based on default label
   React.useEffect(()=> {
-    getFilteredTests(filterLabel);
+    filterCertificateStatus(filterLabel);
     return  () => un();
     }, []);
+  
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // The screen is focused
+      filterCertificateStatus(filterLabel);
+    });
+  
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
 
     const onRefresh = React.useCallback(() => {
       setRefresh(false)
-      getFilteredTests(filterLabel)
+      filterCertificateStatus(filterLabel);
     },[refresh]);
 
-  const onSelect = React.useCallback((id, authority, issueDate, testType, result, ref) => {
-      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, ref: ref})
+  const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref) => {
+      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange })
     })
     if(wait){
       return(
@@ -99,10 +118,10 @@ const CertificateStatus = ({navigation, userToken}) => {
           <View style={styles.typeDropdown}>
             <Picker
               selectedValue={filterValue}
-              style={{ height: 200 }}
+              style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
               onValueChange={(itemValue) => {
                 DropdownCertificateStatusFilterOptions.forEach((item) => {
-                  if (item.value == itemValue) {
+                  if (item.value === itemValue) {
                     setFilterValue(itemValue);
                     setFilterLabel(item.label)
                     filterCertificateStatus(item.label.toLowerCase())
@@ -152,7 +171,7 @@ const CertificateStatus = ({navigation, userToken}) => {
                           result={item.result}
                           role={userToken.role}
                           status={item.status}
-                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.ref)}
+                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.status, item.ref)}
                       />
                   )}
                   keyExtractor={(item, index) =>index.toString()}

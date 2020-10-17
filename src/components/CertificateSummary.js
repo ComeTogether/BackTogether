@@ -1,20 +1,30 @@
 import React from 'react';
-import {View, Image, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Image, Text, StyleSheet, TouchableOpacity,   ActivityIndicator} from 'react-native';
 import {B} from '../components';
 import {connect} from 'react-redux';
 
 
 const CertificateSummary = ({userToken, route, navigation}) => {
- 
-  const {id, authority, issueDate, testType, result, status, role, ref} = route.params;
-  console.log(status, role, ref);
+  const [wait, setWait] = React.useState(false)
+  const [testStatus, setTestStatus] = React.useState() // state needed to rerender the page when we need to show the changed status and hide the admin buttons
+  const {id, authority, issueDate, testType, result, status, ref, changeStatus} = route.params;
     const backfunc = () => {
       navigation.goBack();
     }
+  
+  //on load page set status
+  React.useLayoutEffect(()=> {
+    setTestStatus(status);
+  }, []);
 
-    const handleStatusChange = (newStatus) => {
-      alert(newStatus);
-    };
+    const handleChangeStatus = async (newStatus) => {
+      setWait(true);
+      await changeStatus(ref, newStatus)
+      .then(() => {
+        setWait(false);
+        setTestStatus(newStatus)
+      })
+    }
 
     return(
       <View style={{flexGrow:1, backgroundColor:'#efeff5'}}>
@@ -70,28 +80,30 @@ const CertificateSummary = ({userToken, route, navigation}) => {
                 <B>Status: </B>
               </Text>
               <Text style={page.infos}>
-                {status.charAt(0).toUpperCase() +status.slice(1)}
+                {testStatus && testStatus.charAt(0).toUpperCase() +testStatus.slice(1)} 
               </Text>
             </View>
-            {/* @TODO change to role==admin, this is just for test */}
             {/* conditionally show the approve/reject buttons when role is admin */}
-            { role == "user" && (
-            <>
-              <TouchableOpacity
+            { userToken.role == "admin" && testStatus == 'pending' && !wait && (
+              <>
+                <TouchableOpacity
+                    style={page.submitButton}
+                    onPress={() => handleChangeStatus('accepted')}
+                  >
+                    <Image style={{width:18, height:18, marginEnd: 2}} source={require('../../images/green-tick.png')} />
+                    <Text style={page.submitButtonText}> Accept </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   style={page.submitButton}
-                  onPress={() => handleStatusChange('approved')}
+                  onPress={() => handleChangeStatus('rejected')}
                 >
-                  <Image style={{width:18, height:18, marginEnd: 2}} source={require('../../images/green-tick.png')} />
-                  <Text style={page.submitButtonText}> Approve </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={page.submitButton}
-                onPress={() => handleStatusChange('rejected')}
-              >
-                <Image style={{width:18, height:18, marginEnd: 10}} source={require('../../images/red-x.png')} />
-                <Text style={page.submitButtonText}> Reject </Text>
-              </TouchableOpacity>
-          </>)}
+                  <Image style={{width:18, height:18, marginEnd: 10}} source={require('../../images/red-x.png')} />
+                  <Text style={page.submitButtonText}> Reject </Text>
+                </TouchableOpacity>
+              </>)}
+              {wait &&  (<View style={{paddingTop: 20}}>
+                  <ActivityIndicator size='large' color='rgb(0, 103, 187)' />
+                </View> )}
         </View>
         
       </View>
