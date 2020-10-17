@@ -3,7 +3,7 @@ import {
   InsertUser,
   QrVerification,
   UserQRCode,
-  InsertRole,
+  InsertRole
 } from "../components";
 import CertificateNavigator from "./CertificateNavigator";
 
@@ -12,6 +12,9 @@ export const getTabScreens = (role, Tab) => {
     return (
       <>
         <Tab.Screen name="Admin" component={InsertRole} />
+        <Tab.Screen name="Certificates">
+          {() => <CertificateNavigator role='admin'/>}
+        </Tab.Screen>
         <Tab.Screen name="Verify" component={QrVerification} />
       </>
     );

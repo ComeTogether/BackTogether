@@ -6,8 +6,8 @@ import {connect} from 'react-redux';
 
 const CertificateSummary = ({userToken, route, navigation}) => {
  
-  const {id, authority, issueDate, testType, result, status, role} = route.params;
-  console.log(status, role);
+  const {id, authority, issueDate, testType, result, status, role, ref} = route.params;
+  console.log(status, role, ref);
     const backfunc = () => {
       navigation.goBack();
     }
@@ -24,7 +24,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
                 <Image style={{width:24, height:24}} source={require('../../images/back.png')} />
               </TouchableOpacity>
               <Text style={{fontSize:20, textAlign:'center'}}>
-                  <B>E-Certificate</B> 
+                  <B>E-Certificate</B>
               </Text>
             </View>
             <Image style={{width:48, height:70, marginVertical:6}} source={require('../../images/summary.png')}  />

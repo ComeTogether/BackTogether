@@ -1,10 +1,13 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import {CertificateHistory, CertificateSummary} from '../components'
+import CertificateStatus from "../components/CertificateStatus";
 
 const Certificate = createStackNavigator();
 
-const CertificateNavigator = () => {
+const CertificateNavigator = (props) => {
+
+  const { role } = props
     const config = {
         animation: 'spring',
         config: {
@@ -17,24 +20,31 @@ const CertificateNavigator = () => {
         },
       };
     return(
-        <Certificate.Navigator 
-            headerMode='none' 
+        <Certificate.Navigator
+            headerMode='none'
             mode='modal'
             screenOptions={{
                 // cardStyle: { backgroundColor: 'transparent'},
                 cardOverlayEnabled: true,
-            }} 
+            }}
         >
-            <Certificate.Screen name='History' component={CertificateHistory}
-             options={{header : ({ scene, previous, navigation }) => ( null)}}/>
-            <Certificate.Screen name='Summary' component= {CertificateSummary} 
+          {
+            role === "admin" ?
+              <Certificate.Screen name='CertificateStatus' component={CertificateStatus}
+                                  options={{header : ({ scene, previous, navigation }) => ( null)}}/>
+                                  :
+              <Certificate.Screen name='History' component={CertificateHistory}
+                                  options={{header : ({ scene, previous, navigation }) => ( null)}}/>
+          }
+
+            <Certificate.Screen name='Summary' component= {CertificateSummary}
              options={{
                 transitionSpec: {
                   open: config,
                   close: config,
                 }}}/>
         </Certificate.Navigator>
-    )   
+    )
 }
 
 export default CertificateNavigator;

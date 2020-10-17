@@ -24,6 +24,7 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import Snackbar from 'react-native-snackbar';
 import PersonalInfos from "./src/components/PersonalInfos";
+import {SafeAreaView} from "react-native";
 
 
 // performance imporovement for navigator
@@ -141,8 +142,11 @@ const App = ({ userToken, isLoading, isSignout, dispatch }) => {
   });
 
   return (
+    <SafeAreaView style={{flex:1, backgroundColor:'#efeff5'}}>
+
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
+        <SafeAreaView style={{flex:1}}>
         <Stack.Navigator
           headerMode={
             userToken == null || !firebaseLogin || isLoading ? "none" : "screen"
@@ -211,8 +215,10 @@ const App = ({ userToken, isLoading, isSignout, dispatch }) => {
           )}
 
         </Stack.Navigator>
+        </SafeAreaView>
       </NavigationContainer>
     </AuthContext.Provider>
+    </SafeAreaView>
   );
 };
 

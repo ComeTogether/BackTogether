@@ -241,8 +241,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#rgb(0, 103, 187)",
   },
   logo: {
-    width:90, 
-    height:90, 
+    width:90,
+    height:90,
     alignSelf:'center',
     marginBottom: 20,
     marginTop: 20,
@@ -274,5 +274,6 @@ const styles = StyleSheet.create({
     paddingLeft: 6,
     borderRadius: 10,
     backgroundColor: "white",
+    height: Platform.OS === 'ios' ? 40 : undefined
   },
 });

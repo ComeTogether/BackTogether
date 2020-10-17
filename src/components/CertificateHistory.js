@@ -27,7 +27,7 @@ const CertificateHistory = ({navigation, userToken}) => {
             });
         }
         setWait(false);
-        
+
 
       })
       .catch((error) => {
@@ -59,7 +59,7 @@ const CertificateHistory = ({navigation, userToken}) => {
     },[refresh])    
     
     const onSelect = React.useCallback((id, authority, issueDate, testType, result, status) => {
-      navigation.navigate('Summary',{id:id, authority:authority, issueDate:issueDate, testType:testType, result:result, status:status, role:userToken.role})
+      navigation.navigate('Summary',{id:id, authority:authority, issueDate:issueDate, testType:testType, result:result, status:status})
     })
     if(wait){
       return(
