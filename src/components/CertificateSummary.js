@@ -75,6 +75,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
                 {result?'Positive':'Negative'}
               </Text>
             </View>
+            { userToken.role !== "user" && (
             <View style={page.infos_view}>
               <Text style={page.infos}>
                 <B>Status: </B>
@@ -82,7 +83,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
               <Text style={page.infos}>
                 {testStatus && testStatus.charAt(0).toUpperCase() +testStatus.slice(1)} 
               </Text>
-            </View>
+            </View> )}
             {/* conditionally show the approve/reject buttons when role is admin */}
             { userToken.role == "admin" && testStatus == 'pending' && !wait && (
               <>
