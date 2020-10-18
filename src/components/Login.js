@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
     marginTop: 5
   },
   logo: {
-    width:90, 
-    height:90, 
+    width:90,
+    height:90,
     alignSelf:'center',
     marginBottom: 20,
     marginTop: 20,
@@ -174,5 +174,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 10,
     backgroundColor: "white",
+    height: Platform.OS === 'ios' ? 40 : undefined
   },
 });

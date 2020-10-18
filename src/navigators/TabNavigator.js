@@ -47,6 +47,9 @@ const  TabNavigator = ({userToken}) => {
           if (route.name === 'Verify') {
             iconName = focused? require('../../images/verify.png'):require('../../images/verifyG.png');
           }
+          if (route.name === 'CertificateStatus') {
+            iconName = focused? require('../../images/verify.png'):require('../../images/verifyG.png');
+          }
           if (route.name === 'QR Code') {
             iconName = focused? require('../../images/qr.png'):require('../../images/qrG.png');
           }
@@ -75,7 +78,7 @@ const  TabNavigator = ({userToken}) => {
       }}
       backBehavior= 'history'
       initialRouteName= 'Insert'
-    > 
+    >
     {
       getTabScreens(userToken.role, Tab)
     }
@@ -85,12 +88,12 @@ const  TabNavigator = ({userToken}) => {
 
   const mapStateToProps = (state) => ({
     userToken: state.auth.userToken
-  
+
   })
-  
+
   const mapDispatchToProps = (dispatch) => ({
     dispatch
   })
-  
+
   export default connect(mapStateToProps, mapDispatchToProps)(TabNavigator)
-  
+

@@ -9,6 +9,7 @@ export {default as UserQRCode} from './UserQRCode';
 export {default as VerifyOptions} from './VerifyOptions';
 export {default as QrVerification} from './QrVerification';
 export {default as CertificateHistory} from './CertificateHistory';
+export {default as CertificateStatus} from './CertificateStatus';
 export {default as CertificateSummary} from './CertificateSummary';
 export {default as Test} from './Test';
 export {default as B} from './B';

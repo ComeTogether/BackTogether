@@ -5,8 +5,8 @@ import {connect} from 'react-redux';
 
 
 const CertificateSummary = ({userToken, route, navigation}) => {
- 
-  const {id, authority, issueDate, testType, result} = route.params;
+
+  const {id, authority, issueDate, testType, result, ref} = route.params;
 
     const backfunc = () => {
       navigation.goBack();
@@ -20,7 +20,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
                 <Image style={{width:24, height:24}} source={require('../../images/back.png')} />
               </TouchableOpacity>
               <Text style={{fontSize:20, textAlign:'center'}}>
-                  <B>E-Certificate</B> 
+                  <B>E-Certificate</B>
               </Text>
             </View>
             <Image style={{width:48, height:70, marginVertical:6}} source={require('../../images/summary.png')}  />
@@ -31,16 +31,16 @@ const CertificateSummary = ({userToken, route, navigation}) => {
         <View style={{ flexDirection:'row', marginHorizontal:18, paddingVertical:20, borderBottomRightRadius:10, borderBottomLeftRadius:10, backgroundColor:'white' }}>
           <View style={page.infos_view}>
             <Text style={page.infos}>
-              <B>Authority:</B>             
+              <B>Authority:</B>
             </Text>
             <Text style={page.infos}>
               <B>Test Type: </B>
             </Text>
             <Text style={page.infos}>
-              <B>Date:</B> 
+              <B>Date:</B>
             </Text>
             <Text style={page.infos}>
-              <B>Result:</B> 
+              <B>Result:</B>
             </Text>
           </View>
           <View style={page.infos_view}>
