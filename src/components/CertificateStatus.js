@@ -21,8 +21,8 @@ const CertificateStatus = ({navigation, userToken}) => {
   const [filterLabel, setFilterLabel] = React.useState('pending');
   const [cert, setCert] = React.useState(null);
   const [wait, setWait] = React.useState(true)
-  const [refresh, setRefresh] = React.useState(false);
-  let un = () => {};
+    const [refresh, setRefresh] = React.useState(false);
+    let un = () => {};
 
   const filterCertificateStatus = (label)=> {
     label === 'all' ? getAllTests() : getFilteredTests(label)
