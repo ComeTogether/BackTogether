@@ -13,19 +13,20 @@ import firestore from "@react-native-firebase/firestore";
 import {connect} from 'react-redux';
 import {Picker} from "@react-native-community/picker";
 import {DropdownCertificateStatusFilterOptions} from "../data";
+import {setCertificateStatusFilterLabel} from "../../actions";
 
 const statusType = 'accepted' | 'pending' | 'rejected';
 
-const CertificateStatus = ({navigation, userToken}) => {
+const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel, dispatch}) => {
   const [filterValue, setFilterValue] = React.useState(1);
-  const [filterLabel, setFilterLabel] = React.useState('pending');
   const [cert, setCert] = React.useState(null);
-  const [wait, setWait] = React.useState(true)
+  const [wait, setWait] = React.useState(true);
   const [refresh, setRefresh] = React.useState(false);
   let un = () => {};
 
-  const filterCertificateStatus = (label)=> {
-    label === 'all' ? getAllTests() : getFilteredTests(label)
+  const filterCertificateStatus = ()=> {
+    const filter = certificateStatusFilterLabel.toLowerCase()
+    filter === 'all' ? getAllTests() : getFilteredTests(filter)
   };
 
   const getAllTests = () => {
@@ -74,35 +75,44 @@ const CertificateStatus = ({navigation, userToken}) => {
   const handleStatusChange = async (testRef, newStatus) => {
     const subscriber = testRef.update({
       status: newStatus,
+    }).then(() =>{
+      filterCertificateStatus();
     })
-    .catch((error) => {
-      alert( error)
-    })
+      .catch((error) => {
+        alert( error)
+      })
+
   };
 
   //on load page get tests based on default label
   React.useEffect(()=> {
-    filterCertificateStatus(filterLabel);
+    filterCertificateStatus();
     return  () => un();
     }, []);
-  
+
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // The screen is focused
-      filterCertificateStatus(filterLabel);
+      console.log('..NAVIGATED' , certificateStatusFilterLabel)
     });
-  
+
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe;
   }, [navigation]);
 
     const onRefresh = React.useCallback(() => {
       setRefresh(false)
-      filterCertificateStatus(filterLabel);
+      filterCertificateStatus();
     },[refresh]);
 
-  const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref) => {
-      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange })
+
+
+  React.useEffect(() => {
+    filterCertificateStatus();
+  }, [certificateStatusFilterLabel]);
+
+
+  const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref, certificateStatusFilterLabel) => {
+      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange, parentFilterLabel: certificateStatusFilterLabel})
     })
     if(wait){
       return(
@@ -123,8 +133,7 @@ const CertificateStatus = ({navigation, userToken}) => {
                 DropdownCertificateStatusFilterOptions.forEach((item) => {
                   if (item.value === itemValue) {
                     setFilterValue(itemValue);
-                    setFilterLabel(item.label)
-                    filterCertificateStatus(item.label.toLowerCase())
+                    dispatch(setCertificateStatusFilterLabel(item.label));
                   }
                 });
               }}
@@ -171,7 +180,7 @@ const CertificateStatus = ({navigation, userToken}) => {
                           result={item.result}
                           role={userToken.role}
                           status={item.status}
-                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.status, item.ref)}
+                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.status, item.ref, certificateStatusFilterLabel)}
                       />
                   )}
                   keyExtractor={(item, index) =>index.toString()}
@@ -189,8 +198,10 @@ const CertificateStatus = ({navigation, userToken}) => {
     }
 };
 
-const mapStateToProps = (state) => ({
-  userToken: state.auth.userToken
+const mapStateToProps = (state, dispatch) => ({
+  userToken: state.auth.userToken,
+  certificateStatusFilterLabel: state.filters.certificateStatusFilterLabel,
+  dispatch
 });
 
 export default connect(mapStateToProps)(CertificateStatus)
