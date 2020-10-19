@@ -15,59 +15,38 @@ import {Picker} from "@react-native-community/picker";
 import {DropdownCertificateStatusFilterOptions} from "../data";
 import {setCertificateStatusFilterLabel} from "../../actions";
 
-const statusType = 'accepted' | 'pending' | 'rejected';
-
 const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel, dispatch}) => {
-  const [filterValue, setFilterValue] = React.useState(1);
   const [cert, setCert] = React.useState(null);
   const [wait, setWait] = React.useState(true);
   const [refresh, setRefresh] = React.useState(false);
-  let un = () => {};
 
-  const filterCertificateStatus = ()=> {
-    const filter = certificateStatusFilterLabel.toLowerCase()
-    filter === 'all' ? getAllTests() : getFilteredTests(filter)
-  };
 
-  const getAllTests = () => {
+  const getTests = (filter) => {
+
+    const cleanData = (data) => {
+      const certificates = data.reduce((flat, toFlatten) => {
+        return flat.concat({...toFlatten.data(), ref: toFlatten.ref});
+      }, []);
+      setCert(certificates);
+    }
     setWait(true);
-    const subscriber = firestore()
-      .collection("TestsDev")
+    let query = firestore()
+      .collection("TestsDev");
+    // conditionally add extra where clause if we don't want All the tests
+    if (filter !== 'all') {
+      query = query.where('status', '==', filter);
+    }
+    query = query
       .where('authorityUid', '==', userToken.authorityUid)
       .get()
       .then((res) => {
         if (res.docs){
-          const cleanData = res.docs.reduce((flat, toFlatten) => {
-            return flat.concat({...toFlatten.data(), ref: toFlatten.ref});
-          }, []);
-          setCert(cleanData);
+          cleanData(res.docs)
         }
         setWait(false);
       })
       .catch((error) => {
-        alert( error)
-      })
-  };
-
-
-  const getFilteredTests = (label) => {
-    setWait(true);
-    const subscriber = firestore()
-      .collection("TestsDev")
-      .where('status', '==', label)
-      .where('authorityUid', '==', userToken.authorityUid)
-      .get()
-      .then((res) => {
-        if (res.docs){
-          const cleanData = res.docs.reduce((flat, toFlatten) => {
-            return flat.concat({...toFlatten.data(), ref: toFlatten.ref});
-          }, []);
-          setCert(cleanData);
-        }
-        setWait(false);
-      })
-      .catch((error) => {
-        alert( error)
+        alert(error)
       })
   };
 
@@ -76,43 +55,32 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
     const subscriber = testRef.update({
       status: newStatus,
     }).then(() =>{
-      filterCertificateStatus();
+      getTests(certificateStatusFilterLabel);
     })
-      .catch((error) => {
-        alert( error)
-      })
+    .catch((error) => {
+      alert( error)
+    })
 
   };
 
-  //on load page get tests based on default label
-  React.useEffect(()=> {
-    filterCertificateStatus();
-    return  () => un();
-    }, []);
+  const handleDropdownChange = (newFilter) => {
+    getTests(newFilter);
+    dispatch(setCertificateStatusFilterLabel(newFilter));
+   
+  }
 
+  //on load page get tests based on current filter
   React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      console.log('..NAVIGATED' , certificateStatusFilterLabel)
-    });
-
-    // Return the function to unsubscribe from the event so it gets removed on unmount
-    return unsubscribe;
-  }, [navigation]);
+    getTests(certificateStatusFilterLabel);
+  }, []);
 
     const onRefresh = React.useCallback(() => {
       setRefresh(false)
-      filterCertificateStatus();
+      getTests(certificateStatusFilterLabel);
     },[refresh]);
 
-
-
-  React.useEffect(() => {
-    filterCertificateStatus();
-  }, [certificateStatusFilterLabel]);
-
-
   const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref, certificateStatusFilterLabel) => {
-      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange, parentFilterLabel: certificateStatusFilterLabel})
+      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange})
     })
     if(wait){
       return(
@@ -127,23 +95,16 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
               <Text style={{fontSize:22, textAlign:'center', marginTop:20}}>Certificate Status</Text>
           <View style={styles.typeDropdown}>
             <Picker
-              selectedValue={filterValue}
+              selectedValue={certificateStatusFilterLabel}
               style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
-              onValueChange={(itemValue) => {
-                DropdownCertificateStatusFilterOptions.forEach((item) => {
-                  if (item.value === itemValue) {
-                    setFilterValue(itemValue);
-                    dispatch(setCertificateStatusFilterLabel(item.label));
-                  }
-                });
-              }}
+              onValueChange={handleDropdownChange}
             >
-              {DropdownCertificateStatusFilterOptions.map((type, index) => {
+              {DropdownCertificateStatusFilterOptions.map((filterOption, index) => {
                 return (
                   <Picker.Item
                     key={index}
-                    label={type.label}
-                    value={type.value}
+                    label={filterOption}
+                    value={filterOption.toLowerCase()}
                   />
                 );
               })}
@@ -180,7 +141,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
                           result={item.result}
                           role={userToken.role}
                           status={item.status}
-                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.status, item.ref, certificateStatusFilterLabel)}
+                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.status, item.ref)}
                       />
                   )}
                   keyExtractor={(item, index) =>index.toString()}

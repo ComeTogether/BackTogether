@@ -2,15 +2,12 @@ import React from 'react';
 import {View, Image, Text, StyleSheet, TouchableOpacity,   ActivityIndicator} from 'react-native';
 import {B} from '../components';
 import {connect} from 'react-redux';
-import {setCertificateStatusFilterLabel} from "../../actions";
 
-
-const CertificateSummary = ({userToken, route, navigation, dispatch}) => {
+const CertificateSummary = ({userToken, route, navigation}) => {
   const [wait, setWait] = React.useState(false)
   const [testStatus, setTestStatus] = React.useState() // state needed to rerender the page when we need to show the changed status and hide the admin buttons
-  const {id, authority, issueDate, testType, result, status, ref, changeStatus, parentFilterLabel} = route.params;
+  const {id, authority, issueDate, testType, result, status, ref, changeStatus} = route.params;
     const backfunc = () => {
-      dispatch(setCertificateStatusFilterLabel(parentFilterLabel));
       navigation.goBack();
     }
 
@@ -112,11 +109,10 @@ const CertificateSummary = ({userToken, route, navigation, dispatch}) => {
     )
 }
 
-const mapStateToProps = (state,ownProps, dispatch ) => ({
+const mapStateToProps = (state,ownProps ) => ({
   userToken: state.auth.userToken,
   route: ownProps.route,
   navigation: ownProps.navigation,
-  dispatch
   });
 
 const page = StyleSheet.create({
