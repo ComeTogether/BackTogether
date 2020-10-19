@@ -13,60 +13,40 @@ import firestore from "@react-native-firebase/firestore";
 import {connect} from 'react-redux';
 import {Picker} from "@react-native-community/picker";
 import {DropdownCertificateStatusFilterOptions} from "../data";
+import {setCertificateStatusFilterLabel} from "../../actions";
 
-const statusType = 'accepted' | 'pending' | 'rejected';
-
-const CertificateStatus = ({navigation, userToken}) => {
-  const [filterValue, setFilterValue] = React.useState(1);
-  const [filterLabel, setFilterLabel] = React.useState('pending');
+const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel, dispatch}) => {
   const [cert, setCert] = React.useState(null);
-  const [wait, setWait] = React.useState(true)
-    const [refresh, setRefresh] = React.useState(false);
-    let un = () => {};
+  const [wait, setWait] = React.useState(true);
+  const [refresh, setRefresh] = React.useState(false);
 
-  const filterCertificateStatus = (label)=> {
-    label === 'all' ? getAllTests() : getFilteredTests(label)
-  };
 
-  const getAllTests = () => {
+  const getTests = (filter) => {
+
+    const cleanData = (data) => {
+      const certificates = data.reduce((flat, toFlatten) => {
+        return flat.concat({...toFlatten.data(), ref: toFlatten.ref});
+      }, []);
+      setCert(certificates);
+    }
     setWait(true);
-    const subscriber = firestore()
-      .collection("TestsDev")
+    let query = firestore()
+      .collection("TestsDev");
+    // conditionally add extra where clause if we don't want All the tests
+    if (filter !== 'all') {
+      query = query.where('status', '==', filter);
+    }
+    query = query
       .where('authorityUid', '==', userToken.authorityUid)
       .get()
       .then((res) => {
         if (res.docs){
-          const cleanData = res.docs.reduce((flat, toFlatten) => {
-            return flat.concat({...toFlatten.data(), ref: toFlatten.ref});
-          }, []);
-          setCert(cleanData);
+          cleanData(res.docs)
         }
         setWait(false);
       })
       .catch((error) => {
-        alert( error)
-      })
-  };
-
-
-  const getFilteredTests = (label) => {
-    setWait(true);
-    const subscriber = firestore()
-      .collection("TestsDev")
-      .where('status', '==', label)
-      .where('authorityUid', '==', userToken.authorityUid)
-      .get()
-      .then((res) => {
-        if (res.docs){
-          const cleanData = res.docs.reduce((flat, toFlatten) => {
-            return flat.concat({...toFlatten.data(), ref: toFlatten.ref});
-          }, []);
-          setCert(cleanData);
-        }
-        setWait(false);
-      })
-      .catch((error) => {
-        alert( error)
+        alert(error)
       })
   };
 
@@ -74,35 +54,33 @@ const CertificateStatus = ({navigation, userToken}) => {
   const handleStatusChange = async (testRef, newStatus) => {
     const subscriber = testRef.update({
       status: newStatus,
+    }).then(() =>{
+      getTests(certificateStatusFilterLabel);
     })
     .catch((error) => {
       alert( error)
     })
+
   };
 
-  //on load page get tests based on default label
-  React.useEffect(()=> {
-    filterCertificateStatus(filterLabel);
-    return  () => un();
-    }, []);
-  
+  const handleDropdownChange = (newFilter) => {
+    getTests(newFilter);
+    dispatch(setCertificateStatusFilterLabel(newFilter));
+   
+  }
+
+  //on load page get tests based on current filter
   React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      // The screen is focused
-      filterCertificateStatus(filterLabel);
-    });
-  
-    // Return the function to unsubscribe from the event so it gets removed on unmount
-    return unsubscribe;
-  }, [navigation]);
+    getTests(certificateStatusFilterLabel);
+  }, []);
 
     const onRefresh = React.useCallback(() => {
       setRefresh(false)
-      filterCertificateStatus(filterLabel);
+      getTests(certificateStatusFilterLabel);
     },[refresh]);
 
-  const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref) => {
-      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange })
+  const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref, certificateStatusFilterLabel) => {
+      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange})
     })
     if(wait){
       return(
@@ -117,24 +95,16 @@ const CertificateStatus = ({navigation, userToken}) => {
               <Text style={{fontSize:22, textAlign:'center', marginTop:20}}>Certificate Status</Text>
           <View style={styles.typeDropdown}>
             <Picker
-              selectedValue={filterValue}
+              selectedValue={certificateStatusFilterLabel}
               style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
-              onValueChange={(itemValue) => {
-                DropdownCertificateStatusFilterOptions.forEach((item) => {
-                  if (item.value === itemValue) {
-                    setFilterValue(itemValue);
-                    setFilterLabel(item.label)
-                    filterCertificateStatus(item.label.toLowerCase())
-                  }
-                });
-              }}
+              onValueChange={handleDropdownChange}
             >
-              {DropdownCertificateStatusFilterOptions.map((type, index) => {
+              {DropdownCertificateStatusFilterOptions.map((filterOption, index) => {
                 return (
                   <Picker.Item
                     key={index}
-                    label={type.label}
-                    value={type.value}
+                    label={filterOption}
+                    value={filterOption.toLowerCase()}
                   />
                 );
               })}
@@ -189,8 +159,10 @@ const CertificateStatus = ({navigation, userToken}) => {
     }
 };
 
-const mapStateToProps = (state) => ({
-  userToken: state.auth.userToken
+const mapStateToProps = (state, dispatch) => ({
+  userToken: state.auth.userToken,
+  certificateStatusFilterLabel: state.filters.certificateStatusFilterLabel,
+  dispatch
 });
 
 export default connect(mapStateToProps)(CertificateStatus)

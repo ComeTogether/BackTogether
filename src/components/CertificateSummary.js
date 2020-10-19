@@ -3,7 +3,6 @@ import {View, Image, Text, StyleSheet, TouchableOpacity,   ActivityIndicator} fr
 import {B} from '../components';
 import {connect} from 'react-redux';
 
-
 const CertificateSummary = ({userToken, route, navigation}) => {
   const [wait, setWait] = React.useState(false)
   const [testStatus, setTestStatus] = React.useState() // state needed to rerender the page when we need to show the changed status and hide the admin buttons
@@ -11,9 +10,9 @@ const CertificateSummary = ({userToken, route, navigation}) => {
     const backfunc = () => {
       navigation.goBack();
     }
-  
+
   //on load page set status
-  React.useLayoutEffect(()=> {
+  React.useEffect(()=> {
     setTestStatus(status);
   }, []);
 
@@ -45,7 +44,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
         <View style={{ flexDirection: 'column', marginHorizontal:18, paddingVertical:20, paddingHorizontal:40, borderBottomRightRadius:10, borderBottomLeftRadius:10, backgroundColor:'white' }}>
             <View style={page.infos_view}>
               <Text style={page.infos}>
-                <B>Authority:</B>             
+                <B>Authority:</B>
               </Text>
               <Text style={page.infos}>
                 {authority}
@@ -81,7 +80,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
                 <B>Status: </B>
               </Text>
               <Text style={page.infos}>
-                {testStatus && testStatus.charAt(0).toUpperCase() +testStatus.slice(1)} 
+                {testStatus && testStatus.charAt(0).toUpperCase() +testStatus.slice(1)}
               </Text>
             </View> )}
             {/* conditionally show the approve/reject buttons when role is admin */}
@@ -106,7 +105,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
                   <ActivityIndicator size='large' color='rgb(0, 103, 187)' />
                 </View> )}
         </View>
-        
+
       </View>
     )
 }
@@ -114,7 +113,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
 const mapStateToProps = (state,ownProps ) => ({
   userToken: state.auth.userToken,
   route: ownProps.route,
-  navigation: ownProps.navigation
+  navigation: ownProps.navigation,
   });
 
 const page = StyleSheet.create({
