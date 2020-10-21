@@ -39,7 +39,7 @@ export const deleteUser = async (password) => {
     .then((data) => {
       firestore()
         .collection("users")
-        .where("id", "==", userid)
+        .doc(userid)
         .get()
         .then((doc) => {
           if (!doc.empty) {
