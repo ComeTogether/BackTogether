@@ -1,14 +1,35 @@
 import React from 'react';
-import {Image} from 'react-native';
+import {Image, Alert} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {connect} from 'react-redux';
 import {getTabScreens} from './utils'
 import messaging from '@react-native-firebase/messaging';
+import firestore from "@react-native-firebase/firestore";
+import Snackbar from 'react-native-snackbar';
 
 
 const Tab = createBottomTabNavigator();
 
-const  TabNavigator = ({userToken}) => {
+
+
+const  TabNavigator = ({userToken, navigation }) => {
+  const [loading, setLoading] = React.useState(true)
+  const [inRoute, setInRoute] = React.useState('');
+
+  const snack = (msg) => {
+    let title = `${msg.notification.title}`.toUpperCase();
+    Snackbar.show({
+      text: `${title}: ${msg.notification.body}`,
+      textColor:'rgb(0,103,189)',
+      backgroundColor: 'white',
+      duration: Snackbar.LENGTH_INDEFINITE,
+      action: {
+        text: 'SHOW',
+        textColor: 'black',
+        onPress: () => { Snackbar.dismiss(); navigation.navigate(msg.data.type)},
+        },
+    });
+  }
 
   const checkPermission = async () => {
     const enabled = await messaging().hasPermission();
@@ -28,14 +49,68 @@ const  TabNavigator = ({userToken}) => {
     }
   };
 
+  async function saveTokenToDatabase(token) {
+    // Assume user is already signed in
+  
+    // Add the token to the users datastore
+    await firestore()
+      .collection('users')
+      .doc(userToken.id)
+      .update({
+        tokens: firestore.FieldValue.arrayUnion(token),
+      });
+  }
+
   React.useEffect(() => {
     checkPermission();
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log(
+        'Notification caused app to open from background state:',
+        remoteMessage.notification,
+      );
+      navigation.navigate(remoteMessage.data.type);
+    });
+
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      snack(remoteMessage);
+    });
 
     // Check whether an initial notification is available
-    //firebaseBackgroundMessage();
+    messaging()
+    .getInitialNotification()
+    .then(remoteMessage => {
+      if (remoteMessage) {
+        console.log(
+          'Notification caused app to open from quit state:',
+          remoteMessage.notification,
+        );
+        setInRoute(remoteMessage.data.type);
+      }
+      setLoading(false);
+    });
+
+    // Get the device token
+    messaging()
+    .getToken()
+    .then(token => {
+      return saveTokenToDatabase(token);
+    });
+
+    // Listen to whether the token changes
+    messaging().onTokenRefresh(token => {
+      saveTokenToDatabase(token);
+    });
+
+    return unsubscribe;
+
   }, []);
 
-  if(userToken == null) return null
+  if (loading) {
+    return null;
+  }
+  if(userToken == null) { 
+    return null
+  }
     return (
       <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -74,7 +149,7 @@ const  TabNavigator = ({userToken}) => {
         },
       }}
       backBehavior= 'history'
-      initialRouteName= 'Insert'
+      initialRouteName = {inRoute}
     > 
     {
       getTabScreens(userToken.role, Tab)
@@ -83,8 +158,9 @@ const  TabNavigator = ({userToken}) => {
     );
   }
 
-  const mapStateToProps = (state) => ({
-    userToken: state.auth.userToken
+  const mapStateToProps = (state, ownProps) => ({
+    userToken: state.auth.userToken,
+    navigation: ownProps.navigation
   
   })
   

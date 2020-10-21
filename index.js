@@ -14,19 +14,12 @@ import messaging from '@react-native-firebase/messaging';
 import {connect} from 'react-redux';
 
 
-const fb =({userToken}) => messaging().setBackgroundMessageHandler(async (message) => {
-  console.log(message)
-  console.log(userToken.email)
-    if(message && message.to == userToken.email ) {
-      console.log('Notification caused app to open from quit state:', message.notification)
-    }
-  })
-
-const mapStateToProps = (state) => ({
-  userToken: state.auth.userToken,
+// Register background handler
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  if( remoteMessage ){
+    console.warn('NotifMessage handled in the background!', remoteMessage.data);
+  }
 });
-
-connect(mapStateToProps)(fb)
 
 //redux initialization
 const store = createStore(
