@@ -122,6 +122,9 @@ const  TabNavigator = ({userToken, navigation }) => {
           if (route.name === 'Verify') {
             iconName = focused? require('../../images/verify.png'):require('../../images/verifyG.png');
           }
+          if (route.name === 'CertificateStatus') {
+            iconName = focused? require('../../images/verify.png'):require('../../images/verifyG.png');
+          }
           if (route.name === 'QR Code') {
             iconName = focused? require('../../images/qr.png'):require('../../images/qrG.png');
           }
@@ -163,10 +166,10 @@ const  TabNavigator = ({userToken, navigation }) => {
     navigation: ownProps.navigation
   
   })
-  
+
   const mapDispatchToProps = (dispatch) => ({
     dispatch
   })
-  
+
   export default connect(mapStateToProps, mapDispatchToProps)(TabNavigator)
-  
+

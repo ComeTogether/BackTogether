@@ -195,7 +195,7 @@ class InsertRole extends Component {
             <View style={styles.typeDropdown}>
               <Picker
                 selectedValue={this.state.role}
-                style={{ height: 40 }}
+                style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
                 onValueChange={(itemValue) => {
                   console.log(itemValue);
                   DropdownRoles.forEach((item) => {
@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     height: 40,
     borderRadius: 10,
+    padding: 8
   },
   typeDropdown: {
     marginHorizontal: 18,
