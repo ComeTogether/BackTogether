@@ -59,7 +59,7 @@ const CertificateHistory = ({navigation, userToken}) => {
     },[refresh])
 
     const onSelect = React.useCallback((id, authority, issueDate, testType, result) => {
-      navigation.navigate('Summary',{id:id, authority:authority, issueDate:issueDate, testType:testType, result:result})
+      navigation.navigate('Summary',{id:id, authorityName:authority, issueDate:issueDate, testType:testType, result:result})
     })
     if(wait){
       return(
@@ -101,7 +101,7 @@ const CertificateHistory = ({navigation, userToken}) => {
                           date={item.issueDate}
                           expiration={item.expireDate}
                           result={item.result}
-                          onSelect={() => onSelect(item.testId, item.authority, item.issueDate, item.testType, item.result)}
+                          onSelect={() => onSelect(item.testId, item.authorityName, item.issueDate, item.testType, item.result)}
                       />
                   )}
                   keyExtractor={item=>item.testId}

@@ -84,6 +84,7 @@ class InsertUser extends Component {
       issueDate: moment(new Date()).format("YYYY-MM-DD"),
       checkBoxes: [],
       isPending: false,
+      userId: ""
     };
   }
 
@@ -91,33 +92,74 @@ class InsertUser extends Component {
     try {
       if (dataParams && dataParams.tests && dataParams.tests.length) {
         firestore()
-          .collection("tests")
+          .collection("users")
           .where("email", "==", this.state.patientEmail.toLowerCase().trim())
           .get()
           .then((res) => {
-            if (res.docs.length !== 0) {
-              firestore()
-                .collection("tests")
-                .doc(res.docs[0].ref.id)
-                .update({
-                  tests: [...res.docs[0].data().tests, ...dataParams.tests],
+            if (res.docs.length == 0) {
+              //user dont exist, so register him, and add him to database.
+              const defaultNum = Math.floor(100000 + Math.random() * 900000); //6 digits default number
+
+              auth()
+                .createUserWithEmailAndPassword(
+                  email_trimmed,
+                  defaultNum.toString()
+                )
+                .then((data) => {
+                  firestore()
+                    .collection("users")
+                    .doc(data.user.uid)
+                    .set({
+                      email: email_trimmed,
+                      one_time_password: defaultNum,
+                      stepSeen: false,
+                      id: data.user.uid,
+                      role: role
+                    });
+
+                  this.setState({userId: data.user.uid});
+
+                  //send email with his code.
+                  var TemplateData = {
+                    passwrod: defaultNum,
+                  };
+
+                  var params = {
+                    Source: "info@cometogether.network",
+                    Destination: {
+                      ToAddresses: [email_trimmed],
+                    },
+                    Template: "BackTogetherLoginPassword" /* required */,
+                    TemplateData: JSON.stringify(TemplateData) /* required */,
+                  };
+
+                  ses
+                    .sendTemplatedEmail(params)
+                    .promise()
+                    .then(() => {
+                      //redirect to 'email sent page'
+                      this.setState({ wait: false });
+                      snack("User has been created!", "green");
+                    });
                 })
-                .then(async () => {
-                  await this.setState({ isPending: false });
-                  snack("Updated patient records successfully", "green");
+                .catch((error) => {
+                  if (error.code === "auth/invalid-email") {
+                    snack("That email address is invalid!");
+                    this.setState({ wait: false });
+                  }
+                  this.setState({ wait: false });
+                  console.log(error);
                 });
-            } else {
+            }
               firestore()
                 .collection("tests")
                 .add({
-                  email: this.state.patientEmail.toLowerCase().trim(),
-                  tests: [...dataParams.tests],
+                  ...dataParams,
                 })
                 .then(async () => {
                   await this.setState({ isPending: false });
                   snack("Inserted data successfully", "green");
                 });
-            }
           });
       } else {
         snack("Please fill all the test information");
@@ -145,17 +187,13 @@ class InsertUser extends Component {
       if (!validation(this.state.patientEmail)) return;
 
       data = {
-        patientEmail: this.state.patientEmail,
-        tests: [
-          {
-            testId: this.state.testId,
-            testType: this.state.testLabel,
-            result: this.state.checkBoxes[0].value === 1,
-            issueDate: this.state.issueDate,
-            issuer: this.props.userToken.email.toLowerCase().trim(),
-            authority: this.props.userToken.healthCenter,
-          },
-        ],
+        testId: this.state.testId,
+        testType: this.state.testLabel,
+        result: this.state.checkBoxes[0].value === 1,
+        issueDate: this.state.issueDate,
+        issuer: this.props.userToken.email.toLowerCase().trim(),
+        authorityName: this.props.userToken.healthCenter,
+        userId: this.state.userId
       };
 
       if (!this.state.isPending) {

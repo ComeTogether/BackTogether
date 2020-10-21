@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 
 const CertificateSummary = ({userToken, route, navigation}) => {
 
-  const {id, authority, issueDate, testType, result, ref} = route.params;
+  const {id, authorityName, issueDate, testType, result, ref} = route.params;
 
     const backfunc = () => {
       navigation.goBack();
@@ -45,7 +45,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
           </View>
           <View style={page.infos_view}>
             <Text style={page.infos}>
-              {authority}
+              {authorityName}
             </Text>
             <Text style={page.infos}>
               {testType}
