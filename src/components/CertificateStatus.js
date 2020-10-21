@@ -79,13 +79,8 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
       getTests(certificateStatusFilterLabel);
     },[refresh]);
 
-<<<<<<< HEAD
   const onSelect = React.useCallback((id, authority, issueDate, testType, result, ref) => {
       navigation.navigate('Summary',{id:id, authorityName: authority, issueDate: issueDate, testType: testType, result: result, ref: ref})
-=======
-  const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref, certificateStatusFilterLabel) => {
-      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange})
->>>>>>> 330eec157a6fdbc3906cf4d9eec630ea519b4acc
     })
     if(wait){
       return(
@@ -146,11 +141,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
                           result={item.result}
                           role={userToken.role}
                           status={item.status}
-<<<<<<< HEAD
                           onSelect={() => onSelect(index, item.authorityName, item.issueDate, item.testType, item.result, item.ref)}
-=======
-                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.status, item.ref)}
->>>>>>> 330eec157a6fdbc3906cf4d9eec630ea519b4acc
                       />
                   )}
                   keyExtractor={(item, index) =>index.toString()}

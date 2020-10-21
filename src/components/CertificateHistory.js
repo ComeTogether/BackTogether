@@ -101,11 +101,7 @@ const CertificateHistory = ({navigation, userToken}) => {
                           date={item.issueDate}
                           expiration={item.expireDate}
                           result={item.result}
-<<<<<<< HEAD
                           onSelect={() => onSelect(item.testId, item.authorityName, item.issueDate, item.testType, item.result)}
-=======
-                          onSelect={() => onSelect(item.testId, item.authority, item.issueDate, item.testType, item.result, item.status)}
->>>>>>> 330eec157a6fdbc3906cf4d9eec630ea519b4acc
                       />
                   )}
                   keyExtractor={item=>item.testId}
