@@ -4,7 +4,7 @@ const initialData = {
     userToken: null,
   }
 
-export default  authReducer = (prevState = initialData, action) => {
+export default authReducer = (prevState = initialData, action) => {
     switch (action.type) {
     case 'RESTORE_TOKEN':
         return {

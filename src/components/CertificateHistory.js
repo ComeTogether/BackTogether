@@ -101,7 +101,7 @@ const CertificateHistory = ({navigation, userToken}) => {
                           date={item.issueDate}
                           expiration={item.expireDate}
                           result={item.result}
-                          onSelect={() => onSelect(item.testId, item.authority, item.issueDate, item.testType, item.result)}
+                          onSelect={() => onSelect(item.testId, item.authority, item.issueDate, item.testType, item.result, item.status)}
                       />
                   )}
                   keyExtractor={item=>item.testId}
