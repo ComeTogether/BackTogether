@@ -71,22 +71,5 @@ export const DropdownRoles = [
   },
 ];
 
-export const DropdownCertificateStatusFilterOptions = [
-  {
-    label: "All",
-    value: 0,
-  },
-  {
-    label: "Pending",
-    value: 1,
-  },
-  {
-    label: "Accepted",
-    value: 2,
-  },
-  {
-    label: "Rejected",
-    value: 3,
-  },
-];
+export const DropdownCertificateStatusFilterOptions = ['All', 'Pending', 'Accepted', 'Rejected'];
 

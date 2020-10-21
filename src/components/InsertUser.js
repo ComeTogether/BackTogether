@@ -193,7 +193,8 @@ class InsertUser extends Component {
         issueDate: this.state.issueDate,
         issuer: this.props.userToken.email.toLowerCase().trim(),
         authorityName: this.props.userToken.healthCenter,
-        userId: this.state.userId
+        userId: this.state.userId,
+        status: 'pending',
       };
 
       if (!this.state.isPending) {

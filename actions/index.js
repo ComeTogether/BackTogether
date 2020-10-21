@@ -25,3 +25,10 @@ export const setRepeat = (status) => ({type:'SET_REPEAT', status:status})
 
 //stepsReducer
 export const setStepsSeen = (flag) => ({type:'SET_STEPS', stepsSeen:flag});
+
+//filter actions
+export const setCertificateStatusFilterLabel = (certificateStatusFilterLabel) => (
+  {
+    type: 'SET_CERTIFICATE_STATUS_FILTER_LABEL',
+    certificateStatusFilterLabel: certificateStatusFilterLabel
+  });

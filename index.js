@@ -12,6 +12,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import React from 'react'
 import messaging from '@react-native-firebase/messaging';
 import {connect} from 'react-redux';
+import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly'
 
 
 // Register background handler
@@ -24,10 +25,10 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 //redux initialization
 const store = createStore(
     rootReducers,
-    applyMiddleware(
+    composeWithDevTools(applyMiddleware(
         logger,
         thunk
-    )
+    ))
   );
   
 const persistor = persistStore(store);

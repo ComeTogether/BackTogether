@@ -6,6 +6,7 @@ import authReducer from './auth';
 import privateKeyReducer from './privateKey';
 import stepsReducer from './steps';
 import passCodeReducer from './pass';
+import filtersReducer from './filters'
 
 const privateKeyPersistConfig = {
     key: 'privateKey',
@@ -31,12 +32,19 @@ const rootPersistConfig = {
     blacklist: ['privateKey','auth','steps']
 }
 
-  
+const filtersPersistConfig = {
+  key: 'certificateStatusFilterLabel',
+  storage: AsyncStorage,
+  whitelist: ['certificateStatusFilterLabel']
+}
+
+
 const reducer =  combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
     privateKey: persistReducer(privateKeyPersistConfig, privateKeyReducer),
     steps: persistReducer(stepsPersistConfig, stepsReducer),
-    pass: passCodeReducer
+   filters: persistReducer(filtersPersistConfig, filtersReducer),
+  pass: passCodeReducer
 })
 
 export default persistReducer(rootPersistConfig, reducer)
