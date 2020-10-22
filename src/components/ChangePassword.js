@@ -51,11 +51,10 @@ const ChangePassword = ({currentpass, newpass, confpass, status, repeat, dispatc
     }
 
     const reset = async () => {
-       console.warn("current", currentpass == " ")
-       console.warn("newpass", newpass == " ")
-      if( currentpass == " " || newpass == " "){ 
+      if( currentpass == "" || newpass == ""){ 
          replicabackbutton();
-         snack('Password can not be empty', 'red'); 
+         snack('Password can not be empty', 'red');
+         return ;
       }
       if( confpass == newpass ){
          const msg = await resetPassUser(currentpass, newpass);
