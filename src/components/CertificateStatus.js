@@ -156,7 +156,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
           (
           <View style={{ height: 200, justifyContent:'center', alignItems:'center', backgroundColor: '#efeff5',}}>
             <Image style={{width:48, height:70, opacity: 0.9, marginVertical:6}} source={require('../../images/summary.png')}  />
-            <Text style={{fontSize:20, color:'black'}}>No Certifications Available!</Text>
+            <Text style={{fontSize:20, color:'rgb(0,103,189)'}}>No Certifications Available!</Text>
           </View>
           )
         }
