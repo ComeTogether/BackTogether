@@ -37,7 +37,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
       query = query.where('status', '==', filter);
     }
     query = query
-      .where('authorityUid', '==', userToken.authorityUid)
+      .where('authority', '==', userToken.authority)
       .get()
       .then((res) => {
         if (res.docs){
@@ -66,7 +66,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
   const handleDropdownChange = (newFilter) => {
     getTests(newFilter);
     dispatch(setCertificateStatusFilterLabel(newFilter));
-   
+
   }
 
   //on load page get tests based on current filter
