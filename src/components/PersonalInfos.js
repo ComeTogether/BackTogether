@@ -87,11 +87,11 @@ function PersonalInfos({userToken, dispatch }) {
 const mapStateToProps = (state) => ({
     userToken: state.auth.userToken,
     });
-    
+
     const mapDispatchToProps = (dispatch) => ({
     dispatch,
     });
-    
+
     export default connect(mapStateToProps, mapDispatchToProps)(PersonalInfos);
 
 const styles = StyleSheet.create({
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     marginBottom: 100,
   },
   logo: {
-    width:90, 
-    height:90, 
+    width:90,
+    height:90,
     alignSelf:'center',
     marginBottom: 20,
     marginTop: 20,
@@ -161,5 +161,6 @@ const styles = StyleSheet.create({
     paddingLeft: 6,
     borderRadius: 10,
     backgroundColor: "white",
+    height: 40
   },
 });
