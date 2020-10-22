@@ -92,7 +92,7 @@ const ResetPassword = ({currentpass, newpass, confpass, status, repeat, dispatch
           <TouchableOpacity style={{marginRight:18}} onPress={backfunc}>
               <Image style={{width:24, height:24}} source={require('../../images/back.png')} />
           </TouchableOpacity>
-          <Text style={{fontWeight:'bold', fontSize:18, color:'dimgrey'}}>Reset Password</Text>
+          <Text style={{fontWeight:'bold', fontSize:18, color:'dimgrey'}}>Change Password</Text>
         </View>
         <View style={{flexGrow:2, flexDirection:'column'}}>
         <Text style={styles.texts}>{status? "Enter your existing passcode": repeat? "Confirm your new passcode":"Create your new passcode"}</Text>
@@ -104,8 +104,8 @@ const ResetPassword = ({currentpass, newpass, confpass, status, repeat, dispatch
             style={styles.textInput}
             secureTextEntry={true}
           />
-          <TouchableOpacity style={styles.confirmButton} title="Reset Password" onPress= {()=>{status?next1():repeat?reset():next2()}} >
-             <Text style={styles.optionButtonText}>{status?'Next':repeat?'Reset Password':'Next'}</Text>
+          <TouchableOpacity style={styles.confirmButton} title="Change Password" onPress= {()=>{status?next1():repeat?reset():next2()}} >
+             <Text style={styles.optionButtonText}>{status?'Next':repeat?'Change Password':'Next'}</Text>
           </TouchableOpacity>
          </View>
        </View>

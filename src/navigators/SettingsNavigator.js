@@ -40,7 +40,7 @@ const CertificateNavigator = () => {
 
             <Certificate.Screen name='Reset' component= {ResetPassword} 
                 options={{
-                title:'Reset Password',
+                title:'Change Password',
                 transitionSpec: {
                     open: config,
                     close: config,
