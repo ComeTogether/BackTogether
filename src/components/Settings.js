@@ -15,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 //          <TouchableOpacity style = {styles.optionButton} onPress={() => navigation.navigate('TermsOfUse')}>
 //             <Text style = {styles.optionButtonText}> Terms of Use </Text>
 //          </TouchableOpacity>
-//          <TouchableOpacity style = {styles.optionButton} onPress={() => navigation.navigate('ResetPassword')}>
+//          <TouchableOpacity style = {styles.optionButton} onPress={() => navigation.navigate('ChangePassword')}>
 //             <Text style = {styles.optionButtonText}> Reset Password </Text>
 //          </TouchableOpacity>
 //          <TouchableOpacity style = {styles.optionButton} onPress={() => navigation.navigate('DeleteAccount')}>

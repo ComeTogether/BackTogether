@@ -32,12 +32,12 @@ export function PrivacyPolicy() {
       navigation.goBack();
     }
 
-    const snack = (msg) => {
+    const snack = (msg, color) => {
       Snackbar.show({
          text: `${msg}`,
          duration: Snackbar.LENGTH_SHORT,
          backgroundColor:'white',
-         textColor:'red',
+         textColor:`${color}`,
          action: {
            text: 'UNDO',
            textColor: 'rgb(0, 103, 187)',
@@ -47,13 +47,14 @@ export function PrivacyPolicy() {
     }
   
     const deleteAccount = async () => {
+       if(password == "") snack('Password can not be empty', 'red')
       const msg = await deleteUser(password);
       if( msg ){
          navigation.goBack();
-         snack('Account Deleted');
+         snack('Account Deleted', `green`);
       }
       else {
-         snack('Wrong Password');
+         snack('Wrong Password', 'red');
       }
     }
     return (

@@ -24,4 +24,4 @@ export {default as Login_reset_password} from './Login_reset_password';
 export {default as ResetPassEmailSent} from './ResetPassEmailSent';
 export {default as ResetPass} from './ResetPass';
 export {default as InsertRole} from './InsertRole';
-export {default as ResetPassword} from './ResetPassword';
+export {default as ChangePassword} from './ChangePassword';

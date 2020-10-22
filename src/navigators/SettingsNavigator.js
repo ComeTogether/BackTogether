@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PrivacyPolicy, TermsOfUse, DeleteAccount } from '../components/ViewsSettings';
-import { SettingsScreen, Logout, ResetPassword } from '../components';
+import { SettingsScreen, Logout, ChangePassword } from '../components';
 
 const Certificate = createStackNavigator();
 
@@ -38,9 +38,9 @@ const CertificateNavigator = () => {
                 }}}
             />
 
-            <Certificate.Screen name='Reset' component= {ResetPassword} 
+            <Certificate.Screen name='Change' component= {ChangePassword} 
                 options={{
-                title:'Reset Password',
+                title:'Change Password',
                 transitionSpec: {
                     open: config,
                     close: config,

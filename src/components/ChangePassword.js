@@ -8,7 +8,7 @@ import Snackbar from 'react-native-snackbar';
 
 
 
-const ResetPassword = ({currentpass, newpass, confpass, status, repeat, dispatch}) => {
+const ChangePassword = ({currentpass, newpass, confpass, status, repeat, dispatch}) => {
     const navigation = useNavigation();
 
     const backfunc = () => {
@@ -36,12 +36,12 @@ const ResetPassword = ({currentpass, newpass, confpass, status, repeat, dispatch
        return () => backHandler.remove();
     },[])
 
-    const snack = (msg) => {
+    const snack = (msg, color) => {
       Snackbar.show({
          text: `${msg}`,
          duration: Snackbar.LENGTH_SHORT,
          backgroundColor:'white',
-         textColor:'red',
+         textColor: `${color}`,
          action: {
          text: 'UNDO',
          textColor: 'rgb(0, 103, 187)',
@@ -51,11 +51,12 @@ const ResetPassword = ({currentpass, newpass, confpass, status, repeat, dispatch
     }
 
     const reset = async () => {
+      if( currentpass == "") snack('Password can not be empty', 'red')
       if( confpass == newpass ){
          const msg = await resetPassUser(currentpass, newpass);
          if( msg ){
             backfunc()
-            snack('Password updated')
+            snack('Password updated', 'green')
          }
          else {
             dispatch(resetPassCode());
@@ -63,14 +64,14 @@ const ResetPassword = ({currentpass, newpass, confpass, status, repeat, dispatch
             dispatch(resetConfCode());
             dispatch(setRepeat(false));
             dispatch(setStatus(true));
-            snack(`Wrong Password`);
+            snack(`Wrong Password`, 'red');
          }
       }
       else {
          dispatch(resetNewCode());
          dispatch(resetConfCode());
          dispatch(setRepeat(false));
-         snack(`Wrong Confirmation Password`);
+         snack(`Wrong Confirmation Password`, 'red');
       }
     }
 
@@ -104,8 +105,8 @@ const ResetPassword = ({currentpass, newpass, confpass, status, repeat, dispatch
             style={styles.textInput}
             secureTextEntry={true}
           />
-          <TouchableOpacity style={styles.confirmButton} title="Reset Password" onPress= {()=>{status?next1():repeat?reset():next2()}} >
-             <Text style={styles.optionButtonText}>{status?'Next':repeat?'Reset Password':'Next'}</Text>
+          <TouchableOpacity style={styles.confirmButton} title="Change Password" onPress= {()=>{status?next1():repeat?reset():next2()}} >
+             <Text style={styles.optionButtonText}>{status?'Next':repeat?'Change Password':'Next'}</Text>
           </TouchableOpacity>
          </View>
        </View>
@@ -125,7 +126,7 @@ const mapDispatchToProps = (dispatch) => ({
 dispatch,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ResetPassword);
+export default connect(mapStateToProps, mapDispatchToProps)(ChangePassword);
 
 
  const styles = StyleSheet.create({

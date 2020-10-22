@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { connect } from "react-redux";
 import { resetNewCode, resetPassCode, setStatus, resetConfCode, setRepeat } from '../../actions';
 
-const ResetPassword = ({status, repeat, dispatch}) => {
+const ChangePassword = ({status, repeat, dispatch}) => {
     const navigation = useNavigation();
     
     const backfunc = () => {
@@ -52,4 +52,4 @@ const mapDispatchToProps = (dispatch) => ({
   });
   
 
-export default connect(mapStateToProps, mapDispatchToProps)(ResetPassword);
+export default connect(mapStateToProps, mapDispatchToProps)(ChangePassword);
