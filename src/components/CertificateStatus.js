@@ -34,7 +34,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
     setWait(true);
 
       let query = firestore()
-      .collection("TestsDev");
+      .collection("tests");
     // conditionally add extra where clause if we don't want All the tests
       if (filter !== 'all') {
         query = query.where('status', '==', filter);
