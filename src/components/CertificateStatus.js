@@ -27,27 +27,30 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
       const certificates = data.reduce((flat, toFlatten) => {
         return flat.concat({...toFlatten.data(), ref: toFlatten.ref});
       }, []);
-      setCert(certificates);
+
+     setCert( certificates.length !== 0 ? certificates : null);
     }
+
     setWait(true);
-    let query = firestore()
-      .collection("TestsDev");
+
+      let query = firestore()
+      .collection("tests");
     // conditionally add extra where clause if we don't want All the tests
-    if (filter !== 'all') {
-      query = query.where('status', '==', filter);
-    }
-    query = query
-      .where('authorityUid', '==', userToken.authorityUid)
-      .get()
-      .then((res) => {
-        if (res.docs){
-          cleanData(res.docs)
-        }
-        setWait(false);
-      })
-      .catch((error) => {
-        alert(error)
-      })
+      if (filter !== 'all') {
+        query = query.where('status', '==', filter);
+      }
+        query = query
+          .where('authorityName', '==', userToken.authorityName)
+          .get()
+          .then((res) => {
+            if (res.docs){
+              cleanData(res.docs)
+            }
+            setWait(false);
+          })
+          .catch((error) => {
+            alert(error)
+          })
   };
 
   // function passed to CertificateSummary to change the ticket status
@@ -66,7 +69,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
   const handleDropdownChange = (newFilter) => {
     getTests(newFilter);
     dispatch(setCertificateStatusFilterLabel(newFilter));
-   
+
   }
 
   //on load page get tests based on current filter
@@ -91,27 +94,30 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
     }
     else {
       return(
-        <View>
-              <Text style={{fontSize:22, textAlign:'center', marginTop:20}}>Certificate Status</Text>
-          <View style={styles.typeDropdown}>
-            <Picker
-              selectedValue={certificateStatusFilterLabel}
-              style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
-              onValueChange={handleDropdownChange}
-            >
-              {DropdownCertificateStatusFilterOptions.map((filterOption, index) => {
-                return (
-                  <Picker.Item
-                    key={index}
-                    label={filterOption}
-                    value={filterOption.toLowerCase()}
-                  />
-                );
-              })}
-            </Picker>
-          </View>
+        <View style={{backgroundColor:'#efeff5'}}>
+          <Text style={{ backgroundColor:'#efeff5' , fontSize:22, textAlign:'center', marginTop:20}}>Certificate Status</Text>
 
-          {cert ? <FlatList
+            <View style={styles.typeDropdown}>
+              <Picker
+                selectedValue={certificateStatusFilterLabel}
+                style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
+                onValueChange={handleDropdownChange}
+              >
+                {DropdownCertificateStatusFilterOptions.map((filterOption, index) => {
+                  return (
+                    <Picker.Item
+                      key={index}
+                      label={filterOption}
+                      value={filterOption.toLowerCase()}
+                    />
+                  );
+                })}
+              </Picker>
+            </View>
+
+          {cert ?
+
+          <FlatList
                   data={cert}
                   ItemSeparatorComponent={
                     () => (
@@ -146,9 +152,9 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
                   )}
                   keyExtractor={(item, index) =>index.toString()}
               />
-          :
+            :
           (
-          <View style={{flex:1, justifyContent:'center', alignItems:'center', backgroundColor: '#efeff5',}}>
+          <View style={{ height: 200, justifyContent:'center', alignItems:'center', backgroundColor: '#efeff5',}}>
             <Image style={{width:48, height:70, opacity: 0.9, marginVertical:6}} source={require('../../images/summary.png')}  />
             <Text style={{fontSize:20, color:'rgb(0,103,189)'}}>No Certifications Available!</Text>
           </View>

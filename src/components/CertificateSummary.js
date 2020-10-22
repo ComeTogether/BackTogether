@@ -8,7 +8,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
 
   const [wait, setWait] = React.useState(false)
   const [testStatus, setTestStatus] = React.useState() // state needed to rerender the page when we need to show the changed status and hide the admin buttons
-  const {id, authorityName, issueDate, testType, result, ref} = route.params;
+  const {id, authorityName, issueDate, testType, result, status, ref, changeStatus} = route.params;
     const backfunc = () => {
       navigation.goBack();
     }
