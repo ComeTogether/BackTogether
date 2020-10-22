@@ -26,9 +26,10 @@ const CertificateHistory = ({ navigation, userToken }) => {
       const data = [];
 
       querySnapshot.forEach((documentSnapshot) => {
-        data.push({
-          ...documentSnapshot.data(),
-        });
+        documentSnapshot.data().status === "accepted" &&
+          data.push({
+            ...documentSnapshot.data(),
+          });
       });
       data.length > 0 ? setCert(data) : setCert(null);
     });
