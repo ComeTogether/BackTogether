@@ -30,7 +30,7 @@ const CertificateHistory = ({ navigation, userToken }) => {
           ...documentSnapshot.data(),
         });
       });
-      setCert(data);
+      data.length > 0 ? setCert(data) : setCert(null);
     });
 
     setWait(false);
@@ -63,7 +63,7 @@ const CertificateHistory = ({ navigation, userToken }) => {
   } else {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#efeff5" }}>
-        <Text style={{ fontSize: 22, textAlign: "center", marginTop: 20 }}>
+        <Text style={{ fontSize: 22, textAlign: "center", marginTop: 15 }}>
           Certificate History
         </Text>
         {cert ? (

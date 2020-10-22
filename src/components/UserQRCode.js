@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { connect } from "react-redux";
 import QRCode from "react-native-qrcode-svg";
 import { Picker } from "@react-native-community/picker";
@@ -11,6 +11,7 @@ const UserQRCode = ({ navigation, userToken }) => {
   const [testType, changeTestType] = React.useState(null);
   const [userTestTypes, setUserTestTypes] = React.useState([]);
   const [userTestData, setUserTestData] = React.useState([]);
+  const [isThereTests, setIsThereTests] = React.useState(true);
 
   let un = () => {};
 
@@ -50,6 +51,12 @@ const UserQRCode = ({ navigation, userToken }) => {
           return { value: item.testType, label: item.testType };
         })
       );
+      //there are no tests
+      if (removedDuplicates.length === 0) {
+        setIsThereTests(false);
+      } else {
+        setIsThereTests(true);
+      }
       setUserTestData(removedDuplicates);
     });
 
@@ -68,56 +75,80 @@ const UserQRCode = ({ navigation, userToken }) => {
   return (
     <View style={{ flexGrow: 1, backgroundColor: "#efeff5" }}>
       <Text style={{ fontSize: 22, textAlign: "center", marginTop: 15 }}>
-        QR Code
+        My QR Codes
       </Text>
-      <View style={styles.typeDropdown}>
-        <Picker
-          selectedValue={testType}
-          style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
-          itemStyle={{ fontSize: 16 }}
-          onValueChange={(itemValue) => {
-            if (itemValue !== 0) {
-              changeTestType(itemValue);
-            }
+      {isThereTests ? (
+        <>
+          <View style={styles.typeDropdown}>
+            <Picker
+              selectedValue={testType}
+              style={{ height: Platform.OS === "ios" ? 200 : 40 }}
+              itemStyle={{ fontSize: 16 }}
+              onValueChange={(itemValue) => {
+                if (itemValue !== 0) {
+                  changeTestType(itemValue);
+                }
+              }}
+            >
+              <Picker.Item
+                style={{ color: "dimgrey" }}
+                key={0}
+                label="Please select..."
+                value={"Select"}
+              />
+
+              {userTestTypes.map((type) => {
+                return (
+                  <Picker.Item
+                    key={type.value}
+                    label={type.label}
+                    value={type.value}
+                  />
+                );
+              })}
+            </Picker>
+          </View>
+          <View
+            style={{
+              flex: 1,
+              borderRadius: 10,
+              alignItems: "center",
+              marginTop: 60,
+            }}
+          >
+            {value !== "" ? (
+              <QRCode
+                value={value}
+                color="rgb(0,103,187)"
+                size={200}
+                backgroundColor="#efeff5"
+              />
+            ) : (
+              <Text style={{ fontSize: 22, textAlign: "center" }}>
+                Please select a test type in order test's QR Code to be
+                displayed
+              </Text>
+            )}
+          </View>
+        </>
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#efeff5",
           }}
         >
-          <Picker.Item
-            style={{ color: "dimgrey" }}
-            key={0}
-            label="Please select..."
-            value={"Select"}
+          <Image
+            style={{ width: 48, height: 70, opacity: 0.9, marginVertical: 6 }}
+            source={require("../../images/qr.png")}
           />
-
-          {userTestTypes.map((type) => {
-            return (
-              <Picker.Item
-                key={type.value}
-                label={type.label}
-                value={type.value}
-              />
-            );
-          })}
-        </Picker>
-      </View>
-      <View
-        style={{
-          flex: 1,
-          borderRadius: 10,
-          alignItems: "center",
-          marginTop: 60,
-        }}
-      >
-        {value !== "" ? (
-          <QRCode
-            value={value}
-            color="rgb(0,103,187)"
-            size={200}
-            backgroundColor="#efeff5"
-          />
-        ) : (
-          <Text style={{ fontSize: 22 }}>Please select a test type</Text>
-        )}
-      </View>
+          <Text style={{ fontSize: 20, color: "rgb(0,103,189)" }}>
+            No QR Codes Available!
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
