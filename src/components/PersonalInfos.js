@@ -39,19 +39,13 @@ function PersonalInfos({userToken, dispatch }) {
 
         firestore()
         .collection("users")
-        .where('email', '==', userToken.email)
-        .get()
-        .then((res) => {
-          firestore()
-          .collection("users")
-          .doc(res.docs[0].ref.id)
-          .update({
-            fullName: fullName,
-            stepSeen: true
-          });
-      })
+        .doc(userToken.id)
+        .update({
+          fullName: fullName,
+          stepSeen: true
+        });
+      }
       dispatch(insertToken({...userToken, stepSeen: true}))
-    }
   }
 
     return (

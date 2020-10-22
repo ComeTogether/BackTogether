@@ -97,11 +97,11 @@ const App = ({ userToken, isLoading, isSignout, dispatch }) => {
               const userid = data.user.uid;
               firestore()
                 .collection("users")
-                .where("id", "==", userid)
+                .doc(userid)
                 .get()
                 .then((doc) => {
                   if (!doc.empty) {
-                    const data = doc.docs[0].data();
+                    const data = doc.data();
                     setWait(false);
                     dispatch(insertToken(data));
                   } else {

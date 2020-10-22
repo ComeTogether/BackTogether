@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image,TouchableOpacity } from 'react-native';
 import {B} from '../components';
 
-const Test = ({id, title, date, expiration, result, onSelect, role, status}) => {
+const Test = ({id, title, date, authorityName, expiration, result, onSelect, role, status}) => {
 
     return(
         <View style={{marginHorizontal:18, marginVertical:5, backgroundColor:'white', paddingHorizontal:18, paddingVertical:5, borderRadius:10}}>
@@ -12,11 +12,14 @@ const Test = ({id, title, date, expiration, result, onSelect, role, status}) => 
                     {title}
                 </Text>
                 <Text>
-                    <B>Date:</B> {date}
+                    <B>Authority:</B> {authorityName}
                 </Text>
                 <Text>
-                    <B>Expiration Date:</B> {expiration}
+                    <B>Date:</B> {date}
                 </Text>
+                {/* <Text>
+                    <B>Expiration Date:</B> {expiration}
+                </Text> */}
             </View>
             <View>
               {role === 'admin' ?

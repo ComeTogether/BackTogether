@@ -6,6 +6,7 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
+  ActivityIndicator
 } from "react-native";
 import CalendarComponent from "./CalendarComponent";
 import { Api, JsonRpc } from "eosjs-rn";
@@ -20,6 +21,10 @@ import RadioForm, {
 import moment from "moment";
 import { connect } from "react-redux";
 import Snackbar from "react-native-snackbar";
+import AWS from "aws-sdk";
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
+import {B} from '../components';
 const { TextEncoder, TextDecoder } = require("text-encoding");
 const defaultPrivateKey = "5K6FsMBtaNEvbFMaJbqNruSoKWoe5vLcZA8QEX6br3BxQhQp6cK"; // bob
 const signatureProvider = new JsSignatureProvider([defaultPrivateKey]);
@@ -31,12 +36,20 @@ const api = new Api({
   textEncoder: new TextEncoder(),
 });
 
+
+const ses = new AWS.SES({
+  accessKeyId: "AKIAXQFEMNA4AWKM4HW5",
+  secretAccessKey: "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",
+  region: "eu-west-1",
+  apiVersion: "2010-12-01",
+});
+
 const snack = (msg, color = "red") => {
   Snackbar.show({
     text: `${msg}`,
     textColor: color,
     backgroundColor: "white",
-    duration: Snackbar.LENGTH_SHORT,
+    duration: Snackbar.LENGTH_INDEFINITE,
     action: {
       text: "UNDO",
       textColor: "rgb(0, 103, 187)",
@@ -69,8 +82,6 @@ var radio_props = [
   { label: "negative", value: 0 },
 ];
 
-import firestore from "@react-native-firebase/firestore";
-
 class InsertUser extends Component {
   constructor(props) {
     super(props);
@@ -84,39 +95,95 @@ class InsertUser extends Component {
       issueDate: moment(new Date()).format("YYYY-MM-DD"),
       checkBoxes: [],
       isPending: false,
+      userId: ""
     };
   }
 
-  issue = async (dataParams) => {
+  issue = async (dataParams, email) => {
     try {
-      if (dataParams && dataParams.tests && dataParams.tests.length) {
+      if (dataParams.testId && email ) {
         firestore()
-          .collection("tests")
-          .where("email", "==", this.state.patientEmail.toLowerCase().trim())
+          .collection("users")
+          .where("email", "==", email)
           .get()
           .then((res) => {
-            if (res.docs.length !== 0) {
-              firestore()
-                .collection("tests")
-                .doc(res.docs[0].ref.id)
-                .update({
-                  tests: [...res.docs[0].data().tests, ...dataParams.tests],
+            if (res.docs.length == 0) {
+              //user dont exist, so register him, and add him to database.
+              const defaultNum = Math.floor(100000 + Math.random() * 900000); //6 digits default number
+
+              auth()
+                .createUserWithEmailAndPassword(
+                  email,
+                  defaultNum.toString()
+                )
+                .then((data) => {
+                  firestore()
+                    .collection("users")
+                    .doc(data.user.uid)
+                    .set({
+                      email: email,
+                      one_time_password: defaultNum,
+                      stepSeen: false,
+                      id: data.user.uid,
+                      role: "user"
+                    });
+
+                  // update userId with the id of the new created user
+                  // this.setState({userId: data.user.uid});
+                  let id = data.user.uid;
+                  //send email with his code.
+                  var TemplateData = {
+                    passwrod: defaultNum,
+                  };
+
+                  var params = {
+                    Source: "info@cometogether.network",
+                    Destination: {
+                      ToAddresses: [email],
+                    },
+                    Template: "BackTogetherLoginPassword" /* required */,
+                    TemplateData: JSON.stringify(TemplateData) /* required */,
+                  };
+
+                  ses
+                    .sendTemplatedEmail(params)
+                    .promise()
+                    .then(() => {
+                      //redirect to 'email sent page'
+                    });
+                  
+                  firestore()
+                  .collection("tests")
+                  .add({
+                    userId:  id, 
+                    ...dataParams,
+                  })
+                  .then(() => {
+                    this.setState({ isPending: false });
+                    snack("User has been created! & Test issued successfully", "green");
+                  });
                 })
-                .then(async () => {
-                  await this.setState({ isPending: false });
-                  snack("Updated patient records successfully", "green");
+                .catch((error) => {
+                  if (error.code === "auth/invalid-email") {
+                    snack("That email address is invalid!");
+                    this.setState({ wait: false });
+                  }
+                  this.setState({ wait: false });
+                  console.log(error);
                 });
-            } else {
+            }
+            else {
+              let id = res.docs[0].id;
               firestore()
-                .collection("tests")
-                .add({
-                  email: this.state.patientEmail.toLowerCase().trim(),
-                  tests: [...dataParams.tests],
-                })
-                .then(async () => {
-                  await this.setState({ isPending: false });
-                  snack("Inserted data successfully", "green");
-                });
+              .collection("tests")
+              .add({
+                userId:  id, 
+                ...dataParams,
+              })
+              .then(() => {
+                this.setState({ isPending: false });
+                snack("Test issued successfully", "green");
+              });
             }
           });
       } else {
@@ -124,7 +191,7 @@ class InsertUser extends Component {
       }
     } catch (e) {
       snack("Certificate was not issued!");
-      await this.setState({ isPending: false });
+      this.setState({ isPending: false });
     }
   };
 
@@ -145,150 +212,158 @@ class InsertUser extends Component {
       if (!validation(this.state.patientEmail)) return;
 
       data = {
-        patientEmail: this.state.patientEmail,
-        tests: [
-          {
-            testId: this.state.testId,
-            testType: this.state.testLabel,
-            result: this.state.checkBoxes[0].value === 1,
-            issueDate: this.state.issueDate,
-            issuer: this.props.userToken.email.toLowerCase().trim(),
-            authorityName: this.props.userToken.healthCenter,
-            status: 'pending',
-          },
-        ],
+        testId: this.state.testId,
+        testType: this.state.testLabel,
+        result: this.state.checkBoxes[0].value === 1,
+        issueDate: this.state.issueDate,
+        issuer: this.props.userToken.email.toLowerCase().trim(),
+        authorityName: this.props.userToken.healthCenter,
+        adminId: "",
+        status: 'Pending',
       };
 
       if (!this.state.isPending) {
-        await this.setState({ isPending: true });
-        await this.issue(data);
+        this.setState({ isPending: true });
+        await this.issue(data, this.state.patientEmail.toLowerCase().trim());
       }
     } catch (e) {
       snack("Certificate was not issued!");
-      await this.setState({ isPending: false });
+      this.setState({ isPending: false });
     }
   };
 
 
 
   render() {
-    return (
-      <View style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ backgroundColor: "#efeff5" }}>
-          <Text style={styles.title}>Issue Certificate</Text>
+    if(this.state.isPending){ 
+      return(         
+        <View style={{flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#efeff5'}}>
+          <B>
+            <Text style={{color: 'rgb(0, 103, 187)', fontSize: 18, marginBottom: 5}}>Issuing the Test. . .</Text>
+          </B>
+          <ActivityIndicator size='large' color='rgb(0, 103, 187)' />
+        </View>
+      )
+    }
+    else {
+      return (
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ backgroundColor: "#efeff5" }}>
+            <Text style={styles.title}>Issue Certificate</Text>
 
-          <Text style={styles.label}>Patient email</Text>
-          <TextInput
-            style={styles.input}
-            underlineColorAndroid="transparent"
-            placeholder="e.g. patient@gmail.com"
-            placeholderTextColor="grey"
-            autoCapitalize="none"
-            onChangeText={(text) => this.handlePatientEmail(text)}
-          />
+            <Text style={styles.label}>Patient email</Text>
+            <TextInput
+              style={styles.input}
+              underlineColorAndroid="transparent"
+              placeholder="e.g. patient@gmail.com"
+              placeholderTextColor="grey"
+              autoCapitalize="none"
+              onChangeText={(text) => this.handlePatientEmail(text)}
+            />
 
-          <Text style={styles.label}>Test ID</Text>
-          <TextInput
-            style={styles.input}
-            underlineColorAndroid="transparent"
-            placeholder="e.g. 1234"
-            placeholderTextColor="grey"
-            autoCapitalize="none"
-            onChangeText={(text) => this.handleTestId(text)}
-          />
+            <Text style={styles.label}>Test ID</Text>
+            <TextInput
+              style={styles.input}
+              underlineColorAndroid="transparent"
+              placeholder="e.g. 1234"
+              placeholderTextColor="grey"
+              autoCapitalize="none"
+              onChangeText={(text) => this.handleTestId(text)}
+            />
 
-          <Text style={styles.label}>Test Type</Text>
-          <View style={styles.typeDropdown}>
-            <Picker
-              selectedValue={this.state.testType}
-              style={{ height: 40, marginBottom: Platform.OS === 'ios' ? 150 : 0}}
-              itemStyle={{ fontSize: 16 }}
-              onValueChange={(itemValue) => {
-                if (itemValue !== 0) {
-                  this.setState({ testType: itemValue });
-                  let checkBoxes = [];
-                  Types.forEach((testType) => {
-                    if (testType.value === itemValue) {
-                      checkBoxes = testType.checkBoxes;
-                      this.setState({ testLabel: testType.label });
-                    }
-                  });
-                  this.setState({ checkBoxes: checkBoxes });
-                }
-              }}
+            <Text style={styles.label}>Test Type</Text>
+            <View style={styles.typeDropdown}>
+              <Picker
+                selectedValue={this.state.testType}
+                style={{ height: 40, marginBottom: Platform.OS === 'ios' ? 150 : 0}}
+                itemStyle={{ fontSize: 16 }}
+                onValueChange={(itemValue) => {
+                  if (itemValue !== 0) {
+                    this.setState({ testType: itemValue });
+                    let checkBoxes = [];
+                    Types.forEach((testType) => {
+                      if (testType.value === itemValue) {
+                        checkBoxes = testType.checkBoxes;
+                        this.setState({ testLabel: testType.label });
+                      }
+                    });
+                    this.setState({ checkBoxes: checkBoxes });
+                  }
+                }}
+              >
+                <Picker.Item
+                  style={{ color: "dimgrey" }}
+                  key={0}
+                  label="Please select..."
+                  value={0}
+                />
+
+                {Types.map((type) => {
+                  return (
+                    <Picker.Item
+                      key={type.value}
+                      label={type.label}
+                      value={type.value}
+                    />
+                  );
+                })}
+              </Picker>
+            </View>
+
+            {this.state.checkBoxes.map((checkBox, index) => {
+              return (
+                <View style={styles.typeCheckbox} key={checkBox.label}>
+                  <Text style={styles.radioBtnLabel}>{checkBox.label}</Text>
+                  <RadioForm formHorizontal={true} animation={true}>
+                    {radio_props.map((obj, i) => (
+                      <RadioButton labelHorizontal={false} key={i}>
+                        <RadioButtonInput
+                          obj={obj}
+                          index={i}
+                          isSelected={checkBox.value === obj.value}
+                          onPress={(value) => {
+                            let checkBoxes = this.state.checkBoxes;
+                            checkBoxes[index].value = value;
+                            this.setState({ checkBoxes: checkBoxes });
+                          }}
+                          borderWidth={2}
+                          buttonInnerColor={"rgb(0,103,187)"}
+                          buttonOuterColor={"rgb(0,103,187)"}
+                          buttonSize={20}
+                          buttonOuterSize={40}
+                          buttonStyle={{}}
+                          buttonWrapStyle={{}}
+                        />
+                        <RadioButtonLabel
+                          obj={obj}
+                          index={i}
+                          labelStyle={{ fontSize: 14 }}
+                          labelWrapStyle={{}}
+                        />
+                      </RadioButton>
+                    ))}
+                  </RadioForm>
+                </View>
+              );
+            })}
+            <Text style={styles.label}>Issuance Date</Text>
+            <CalendarComponent
+              typeOfDate="issueDate"
+              maxDate={new Date()}
+              current={new Date()}
+              sendData={this.getData}
+            />
+
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={() => this.issueCertificate()}
             >
-              <Picker.Item
-                style={{ color: "dimgrey" }}
-                key={0}
-                label="Please select..."
-                value={0}
-              />
-
-              {Types.map((type) => {
-                return (
-                  <Picker.Item
-                    key={type.value}
-                    label={type.label}
-                    value={type.value}
-                  />
-                );
-              })}
-            </Picker>
-          </View>
-
-          {this.state.checkBoxes.map((checkBox, index) => {
-            return (
-              <View style={styles.typeCheckbox} key={checkBox.label}>
-                <Text style={styles.radioBtnLabel}>{checkBox.label}</Text>
-                <RadioForm formHorizontal={true} animation={true}>
-                  {radio_props.map((obj, i) => (
-                    <RadioButton labelHorizontal={false} key={i}>
-                      <RadioButtonInput
-                        obj={obj}
-                        index={i}
-                        isSelected={checkBox.value === obj.value}
-                        onPress={(value) => {
-                          let checkBoxes = this.state.checkBoxes;
-                          checkBoxes[index].value = value;
-                          this.setState({ checkBoxes: checkBoxes });
-                        }}
-                        borderWidth={2}
-                        buttonInnerColor={"rgb(0,103,187)"}
-                        buttonOuterColor={"rgb(0,103,187)"}
-                        buttonSize={20}
-                        buttonOuterSize={40}
-                        buttonStyle={{}}
-                        buttonWrapStyle={{}}
-                      />
-                      <RadioButtonLabel
-                        obj={obj}
-                        index={i}
-                        labelStyle={{ fontSize: 14 }}
-                        labelWrapStyle={{}}
-                      />
-                    </RadioButton>
-                  ))}
-                </RadioForm>
-              </View>
-            );
-          })}
-          <Text style={styles.label}>Issuance Date</Text>
-          <CalendarComponent
-            typeOfDate="issueDate"
-            maxDate={new Date()}
-            current={new Date()}
-            sendData={this.getData}
-          />
-
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={() => this.issueCertificate()}
-          >
-            <Text style={styles.submitButtonText}> Submit </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-    );
+              <Text style={styles.submitButtonText}> Submit </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      );
+    }
   }
   getData(val) {
     try {
