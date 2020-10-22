@@ -21,13 +21,11 @@ export const resetPassUser = async (oldPass, newPass) => {
   await auth()
     .currentUser.reauthenticateWithCredential(authCredential)
     .then((data) => {
-      user.updatePassword(newPass).then(() => {
-        return true;
-      });
+      user
+        .updatePassword(newPass)
+        .then(() => {return true;});
     })
-    .catch((err) => {
-      return false;
-    });
+    .catch((err) => {return false;});
 };
 
 export const deleteUser = async (password) => {
@@ -48,9 +46,7 @@ export const deleteUser = async (password) => {
             doc.docs[0].ref.delete();
           }
         });
-      user.delete().then(() => {
-        return true;
-      });
+      user.delete().then(() => {return true});
     })
     .catch((err) => {
       return false;

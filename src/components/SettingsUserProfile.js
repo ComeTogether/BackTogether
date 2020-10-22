@@ -9,21 +9,24 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Snackbar from "react-native-snackbar";
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
 export default function SettingsUserProfile() {
-  const [fullname, setFullname] = React.useState("");
+  const [fullName, setFullName] = React.useState("");
+  const [count, setCount] = React.useState("");
   const navigation = useNavigation();
 
   const backfunc = () => {
     navigation.goBack();
   };
 
-  const snack = (msg) => {
+  const snack = (msg, color = "red") => {
     Snackbar.show({
       text: `${msg}`,
-      duration: Snackbar.LENGTH_SHORT,
+      textColor: color,
       backgroundColor: "white",
-      textColor: "red",
+      duration: Snackbar.LENGTH_SHORT,
       action: {
         text: "UNDO",
         textColor: "rgb(0, 103, 187)",
@@ -34,14 +37,42 @@ export default function SettingsUserProfile() {
     });
   };
 
-  useEffect(() => {
-     effect
+  React.useEffect(() => {
+    const user = auth().currentUser;
+    const userid = user.uid;
 
-     
-  }, [input])
+    firestore()
+      .collection("users")
+      .doc(userid)
+      .get()
+      .then((doc) => {
+        if (!doc.empty) {
+          setFullName(doc.data().fullName);
+        }
+      });
+  }, []);
 
   const updateProfile = async () => {
-    console.warn(fullname);
+    const user = auth().currentUser;
+    const userid = user.uid;
+
+    if (count > 2) {
+      snack("Too many updates!", "red");
+    } else {
+      firestore()
+        .collection("users")
+        .doc(userid)
+        .update({
+          fullName: fullName,
+        })
+        .then((data) => {
+          setCount(count + 1);
+          snack("User's information has been updated!", "green");
+        })
+        .catch((err) => {
+          snack("User's information has not been updated!", "red");
+        });
+    }
   };
   return (
     <View style={styles.container}>
@@ -67,9 +98,9 @@ export default function SettingsUserProfile() {
         <Text style={styles.texts}>Full Name</Text>
         <TextInput
           autoCorrect={false}
-          onChangeText={setFullname}
+          onChangeText={setFullName}
           textContentType="text"
-          value={fullname}
+          value={fullName}
           style={styles.textInput}
         />
         <TouchableOpacity

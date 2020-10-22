@@ -197,7 +197,6 @@ class InsertRole extends Component {
                 selectedValue={this.state.role}
                 style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
                 onValueChange={(itemValue) => {
-                  console.log(itemValue);
                   DropdownRoles.forEach((item) => {
                     if (item.value == itemValue) {
                       this.setState({ role: itemValue });
