@@ -73,7 +73,7 @@ const UserQRCode = ({ navigation, userToken }) => {
       <View style={styles.typeDropdown}>
         <Picker
           selectedValue={testType}
-          style={{ height: 40 }}
+          style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
           itemStyle={{ fontSize: 16 }}
           onValueChange={(itemValue) => {
             if (itemValue !== 0) {
