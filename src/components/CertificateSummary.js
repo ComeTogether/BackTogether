@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 const CertificateSummary = ({userToken, route, navigation}) => {
   const [wait, setWait] = React.useState(false)
   const [testStatus, setTestStatus] = React.useState() // state needed to rerender the page when we need to show the changed status and hide the admin buttons
-  const {id, authority, issueDate, testType, result, status, ref, changeStatus} = route.params;
+  const {id, authorityName, issueDate, testType, result, status, ref, changeStatus} = route.params;
     const backfunc = () => {
       navigation.goBack();
     }
@@ -47,7 +47,7 @@ const CertificateSummary = ({userToken, route, navigation}) => {
                 <B>Authority:</B>
               </Text>
               <Text style={page.infos}>
-                {authority}
+                {authorityName}
               </Text>
             </View>
             <View style={page.infos_view}>

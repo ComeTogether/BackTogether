@@ -37,7 +37,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
       query = query.where('status', '==', filter);
     }
     query = query
-      .where('authority', '==', userToken.authority)
+      .where('authorityName', '==', userToken.authorityName)
       .get()
       .then((res) => {
         if (res.docs){
@@ -79,8 +79,8 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
       getTests(certificateStatusFilterLabel);
     },[refresh]);
 
-  const onSelect = React.useCallback((id, authority, issueDate, testType, result, status, ref, certificateStatusFilterLabel) => {
-      navigation.navigate('Summary',{id:id, authority: authority, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange})
+  const onSelect = React.useCallback((id, authorityName, issueDate, testType, result, status, ref, certificateStatusFilterLabel) => {
+      navigation.navigate('Summary',{id:id, authorityName: authorityName, issueDate: issueDate, testType: testType, result: result, status:status, ref: ref, changeStatus: handleStatusChange})
     })
     if(wait){
       return(
@@ -141,7 +141,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
                           result={item.result}
                           role={userToken.role}
                           status={item.status}
-                          onSelect={() => onSelect(index, item.authority, item.issueDate, item.testType, item.result, item.status, item.ref)}
+                          onSelect={() => onSelect(index, item.authorityName, item.issueDate, item.testType, item.result, item.status, item.ref)}
                       />
                   )}
                   keyExtractor={(item, index) =>index.toString()}

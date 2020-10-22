@@ -38,10 +38,10 @@ const CertificateHistory = ({ navigation, userToken }) => {
   }, []);
 
   const onSelect = React.useCallback(
-    (id, authority, issueDate, testType, result) => {
+    (id, authorityName, issueDate, testType, result) => {
       navigation.navigate("Summary", {
         id: id,
-        authority: authority,
+        authorityName: authorityName,
         issueDate: issueDate,
         testType: testType,
         result: result,
@@ -81,7 +81,7 @@ const CertificateHistory = ({ navigation, userToken }) => {
                 onSelect={() =>
                   onSelect(
                     item.testId,
-                    item.authority,
+                    item.authorityName,
                     item.issueDate,
                     item.testType,
                     item.result

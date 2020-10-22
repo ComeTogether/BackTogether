@@ -153,7 +153,7 @@ class InsertUser extends Component {
             result: this.state.checkBoxes[0].value === 1,
             issueDate: this.state.issueDate,
             issuer: this.props.userToken.email.toLowerCase().trim(),
-            authority: this.props.userToken.healthCenter,
+            authorityName: this.props.userToken.healthCenter,
             status: 'pending',
           },
         ],
