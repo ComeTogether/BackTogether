@@ -24,9 +24,10 @@ const UserQRCode = ({ navigation, userToken }) => {
       const data = [];
 
       querySnapshot.forEach((documentSnapshot) => {
-        data.push({
-          ...documentSnapshot.data(),
-        });
+        documentSnapshot.data().status === "accepted" &&
+          data.push({
+            ...documentSnapshot.data(),
+          });
       });
 
       //remove duplicate tests (of the same type) by date
