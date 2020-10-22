@@ -20,7 +20,7 @@ const SettingsScreen = ({navigation}) => {
                 <Text style={{fontWeight:'bold', fontSize:18, color:'dimgrey'}}>Settings</Text>
             </View>
             <View style={{backgroundColor:'white', borderRadius:10, marginHorizontal:18, marginBotton:20, paddingVertical:20}}>
-                <Settings icon={require("../../images/password.png")} name="Change Password" to='Reset' />
+                <Settings icon={require("../../images/password.png")} name="Change Password" to='Change' />
                 <Settings icon={require("../../images/privacy_policy.png")} name="Privacy Policy" to='Privacy' />
                 <Settings icon={require("../../images/terms.png")} name="Terms & Conditions" to='Terms' />
                 <Settings icon={require("../../images/delete.png")} name="Delete Account"  to='Delete' />
