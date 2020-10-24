@@ -12,9 +12,9 @@ import { Picker } from "@react-native-community/picker";
 import { DropdownRoles } from "../data";
 import AWS from "aws-sdk";
 import firestore from "@react-native-firebase/firestore";
-import auth from "@react-native-firebase/auth";
 import { connect } from "react-redux";
 import Snackbar from "react-native-snackbar";
+import { secondaryApp } from "../../App";
 
 const ses = new AWS.SES({
   accessKeyId: "AKIAXQFEMNA4AWKM4HW5",
@@ -89,27 +89,32 @@ class InsertRole extends Component {
           //change only if user has specific role
           if (
             (usersData.role === "user" || usersData.role === "health") &&
-            (usersData.healthCenter === undefined ||
-              usersData.healthCenter === this.props.userToken.healthCenter)
+            (usersData.authorityName === undefined ||
+              usersData.authorityName === this.props.userToken.authorityName)
           ) {
             firestore()
               .collection("users")
               .doc(doc.docs[0].ref.id)
               .update({
                 role: role,
-                healthCenter: this.props.userToken.healthCenter,
+                authorityName: this.props.userToken.authorityName,
               });
             this.setState({ wait: false });
+            this.setState({ userEmail: "" });
             snack("User's role has been updated!", "green");
-          }else {
+          } else {
             this.setState({ wait: false });
-            snack("You don't have the permission to change user's role!", "red");
+            snack(
+              "You don't have the permission to change user's role!",
+              "red"
+            );
           }
         } else {
           //user dont exist, so register him, and add him to database.
           const defaultNum = Math.floor(100000 + Math.random() * 900000); //6 digits default number
 
-          auth()
+          secondaryApp
+            .auth()
             .createUserWithEmailAndPassword(
               email_trimmed,
               defaultNum.toString()
@@ -124,7 +129,7 @@ class InsertRole extends Component {
                   stepSeen: false,
                   id: data.user.uid,
                   role: role,
-                  healthCenter: this.props.userToken.healthCenter
+                  authorityName: this.props.userToken.authorityName,
                 });
 
               //send email with his code.
@@ -159,6 +164,10 @@ class InsertRole extends Component {
               console.log(error);
             });
         }
+      })
+      .catch((err) => {
+        snack("Something went wrong...", "red");
+        this.setState({ wait: false });
       });
   };
 
@@ -184,6 +193,7 @@ class InsertRole extends Component {
             <Text style={styles.label}>User's email</Text>
             <TextInput
               style={styles.input}
+              value={this.state.userEmail}
               underlineColorAndroid="transparent"
               placeholder="e.g. user@gmail.com"
               placeholderTextColor="grey"
@@ -195,7 +205,7 @@ class InsertRole extends Component {
             <View style={styles.typeDropdown}>
               <Picker
                 selectedValue={this.state.role}
-                style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
+                style={{ height: Platform.OS === "ios" ? 200 : 40 }}
                 onValueChange={(itemValue) => {
                   DropdownRoles.forEach((item) => {
                     if (item.value == itemValue) {
@@ -252,7 +262,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     height: 40,
     borderRadius: 10,
-    padding: 8
+    padding: 8,
   },
   typeDropdown: {
     marginHorizontal: 18,

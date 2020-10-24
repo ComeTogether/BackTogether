@@ -84,7 +84,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
     },[refresh]);
 
   const onSelect = React.useCallback((id, authority, issueDate, testType, status, result, ref) => {
-      navigation.navigate('Summary',{id:id, authorityName: authority, issueDate: issueDate, status:status, testType: testType, result: result, ref: ref})
+      navigation.navigate('Summary',{id:id, authorityName: authority, issueDate: issueDate, status:status, testType: testType, result: result, ref: ref, changeStatus: handleStatusChange})
     })
     if(wait){
       return(

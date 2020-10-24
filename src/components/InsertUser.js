@@ -6,7 +6,7 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import CalendarComponent from "./CalendarComponent";
 import { Api, JsonRpc } from "eosjs-rn";
@@ -23,8 +23,10 @@ import { connect } from "react-redux";
 import Snackbar from "react-native-snackbar";
 import AWS from "aws-sdk";
 import firestore from "@react-native-firebase/firestore";
-import auth from "@react-native-firebase/auth";
-import {B} from '../components';
+import { B } from "../components";
+import { secondaryApp } from "../../App";
+
+
 const { TextEncoder, TextDecoder } = require("text-encoding");
 const defaultPrivateKey = "5K6FsMBtaNEvbFMaJbqNruSoKWoe5vLcZA8QEX6br3BxQhQp6cK"; // bob
 const signatureProvider = new JsSignatureProvider([defaultPrivateKey]);
@@ -35,7 +37,6 @@ const api = new Api({
   textDecoder: new TextDecoder(),
   textEncoder: new TextEncoder(),
 });
-
 
 const ses = new AWS.SES({
   accessKeyId: "AKIAXQFEMNA4AWKM4HW5",
@@ -60,22 +61,18 @@ const snack = (msg, color = "red") => {
   });
 };
 
-
 const validation = (email) => {
   const email_trimmed = email.toLowerCase().trim();
   if (email_trimmed == "") {
     snack("Email cannot be empty.");
     return false;
-  } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,8}$/i.test(email_trimmed)
-  ) {
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,8}$/i.test(email_trimmed)) {
     snack("Email format is not valid.");
     return false;
   } else {
     return true;
   }
 };
-
 
 var radio_props = [
   { label: "positive", value: 1 },
@@ -95,13 +92,13 @@ class InsertUser extends Component {
       issueDate: moment(new Date()).format("YYYY-MM-DD"),
       checkBoxes: [],
       isPending: false,
-      userId: ""
+      userId: "",
     };
   }
 
   issue = async (dataParams, email) => {
     try {
-      if (dataParams.testId && email ) {
+      if (dataParams.testId && email) {
         firestore()
           .collection("users")
           .where("email", "==", email)
@@ -111,11 +108,9 @@ class InsertUser extends Component {
               //user dont exist, so register him, and add him to database.
               const defaultNum = Math.floor(100000 + Math.random() * 900000); //6 digits default number
 
-              auth()
-                .createUserWithEmailAndPassword(
-                  email,
-                  defaultNum.toString()
-                )
+              secondaryApp
+                .auth()
+                .createUserWithEmailAndPassword(email, defaultNum.toString())
                 .then((data) => {
                   firestore()
                     .collection("users")
@@ -125,7 +120,7 @@ class InsertUser extends Component {
                       one_time_password: defaultNum,
                       stepSeen: false,
                       id: data.user.uid,
-                      role: "user"
+                      role: "user",
                     });
 
                   // update userId with the id of the new created user
@@ -151,17 +146,20 @@ class InsertUser extends Component {
                     .then(() => {
                       //redirect to 'email sent page'
                     });
-                  
+
                   firestore()
-                  .collection("tests")
-                  .add({
-                    userId:  id, 
-                    ...dataParams,
-                  })
-                  .then(() => {
-                    this.setState({ isPending: false });
-                    snack("User has been created! & Test issued successfully", "green");
-                  });
+                    .collection("tests")
+                    .add({
+                      userId: id,
+                      ...dataParams,
+                    })
+                    .then(() => {
+                      this.setState({ isPending: false });
+                      snack(
+                        "User has been created & Test issued successfully",
+                        "green"
+                      );
+                    });
                 })
                 .catch((error) => {
                   if (error.code === "auth/invalid-email") {
@@ -171,19 +169,18 @@ class InsertUser extends Component {
                   this.setState({ wait: false });
                   console.log(error);
                 });
-            }
-            else {
+            } else {
               let id = res.docs[0].id;
               firestore()
-              .collection("tests")
-              .add({
-                userId:  id, 
-                ...dataParams,
-              })
-              .then(() => {
-                this.setState({ isPending: false });
-                snack("Test issued successfully", "green");
-              });
+                .collection("tests")
+                .add({
+                  userId: id,
+                  ...dataParams,
+                })
+                .then(() => {
+                  this.setState({ isPending: false });
+                  snack("Test issued successfully", "green");
+                });
             }
           });
       } else {
@@ -194,8 +191,6 @@ class InsertUser extends Component {
       this.setState({ isPending: false });
     }
   };
-
-
 
   handlePatientEmail = (text) => {
     this.setState({ patientEmail: text });
@@ -217,9 +212,9 @@ class InsertUser extends Component {
         result: this.state.checkBoxes[0].value === 1,
         issueDate: this.state.issueDate,
         issuer: this.props.userToken.email.toLowerCase().trim(),
-        authorityName: this.props.userToken.healthCenter,
+        authorityName: this.props.userToken.authorityName,
         adminId: "",
-        status: 'Pending',
+        status: "pending",
       };
 
       if (!this.state.isPending) {
@@ -232,20 +227,32 @@ class InsertUser extends Component {
     }
   };
 
-
-
   render() {
-    if(this.state.isPending){ 
-      return(         
-        <View style={{flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#efeff5'}}>
+    if (this.state.isPending) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#efeff5",
+          }}
+        >
           <B>
-            <Text style={{color: 'rgb(0, 103, 187)', fontSize: 18, marginBottom: 5}}>Issuing the Test. . .</Text>
+            <Text
+              style={{
+                color: "rgb(0, 103, 187)",
+                fontSize: 18,
+                marginBottom: 5,
+              }}
+            >
+              Issuing the Test. . .
+            </Text>
           </B>
-          <ActivityIndicator size='large' color='rgb(0, 103, 187)' />
+          <ActivityIndicator size="large" color="rgb(0, 103, 187)" />
         </View>
-      )
-    }
-    else {
+      );
+    } else {
       return (
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ backgroundColor: "#efeff5" }}>
@@ -275,7 +282,10 @@ class InsertUser extends Component {
             <View style={styles.typeDropdown}>
               <Picker
                 selectedValue={this.state.testType}
-                style={{ height: 40, marginBottom: Platform.OS === 'ios' ? 150 : 0}}
+                style={{
+                  height: 40,
+                  marginBottom: Platform.OS === "ios" ? 150 : 0,
+                }}
                 itemStyle={{ fontSize: 16 }}
                 onValueChange={(itemValue) => {
                   if (itemValue !== 0) {
@@ -393,7 +403,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     height: 40,
     borderRadius: 10,
-    paddingLeft: 8
+    paddingLeft: 8,
   },
   typeDropdown: {
     marginHorizontal: 18,

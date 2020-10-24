@@ -25,7 +25,16 @@ import firestore from "@react-native-firebase/firestore";
 import Snackbar from 'react-native-snackbar';
 import PersonalInfos from "./src/components/PersonalInfos";
 import {SafeAreaView} from "react-native";
+import * as firebase from "firebase";
 
+//secondary app for creating users (during test insertion and assign of role)
+export const secondaryApp = firebase.initializeApp(
+  {
+    apiKey: "AIzaSyCNYgR2hXjahKHX-8QEIfEnz7EBbjfl6zo",
+    projectId: "backtogether-624cf",
+  },
+  "secondary"
+);
 
 // performance imporovement for navigator
 enableScreens();
