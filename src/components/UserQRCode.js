@@ -22,13 +22,13 @@ const UserQRCode = ({ navigation, userToken }) => {
 
     un = query.onSnapshot((querySnapshot) => {
       const data = [];
-
-      querySnapshot.forEach((documentSnapshot) => {
-        documentSnapshot.data().status === "accepted" &&
-          data.push({
-            ...documentSnapshot.data(),
-          });
-      });
+      querySnapshot &&
+        querySnapshot.forEach((documentSnapshot) => {
+          documentSnapshot.data().status === "accepted" &&
+            data.push({
+              ...documentSnapshot.data(),
+            });
+        });
 
       //remove duplicate tests (of the same type) by date
       const removedDuplicates = [];

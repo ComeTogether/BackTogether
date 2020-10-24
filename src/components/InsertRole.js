@@ -15,12 +15,13 @@ import firestore from "@react-native-firebase/firestore";
 import { connect } from "react-redux";
 import Snackbar from "react-native-snackbar";
 import { secondaryApp } from "../../App";
+import {AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_API_VERSION} from "@env"
 
 const ses = new AWS.SES({
-  accessKeyId: "AKIAXQFEMNA4AWKM4HW5",
-  secretAccessKey: "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",
-  region: "eu-west-1",
-  apiVersion: "2010-12-01",
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  region: AWS_REGION,
+  apiVersion: AWS_API_VERSION,
 });
 
 const snack = (msg, color = "red") => {
@@ -125,7 +126,6 @@ class InsertRole extends Component {
                 .doc(data.user.uid)
                 .set({
                   email: email_trimmed,
-                  one_time_password: defaultNum,
                   stepSeen: false,
                   id: data.user.uid,
                   role: role,
