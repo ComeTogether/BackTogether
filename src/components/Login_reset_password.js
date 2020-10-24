@@ -92,6 +92,7 @@ export default function Login_reset_password({ navigation }) {
           <TextInput
             autoCorrect={true}
             onChangeText={setEmail}
+            textContentType="emailAddress"
             value={email}
             placeholder="Email"
             style={styles.textInput}

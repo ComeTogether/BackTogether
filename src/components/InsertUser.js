@@ -262,6 +262,7 @@ class InsertUser extends Component {
               style={styles.input}
               underlineColorAndroid="transparent"
               placeholder="e.g. patient@gmail.com"
+              textContentType="emailAddress"
               placeholderTextColor="grey"
               autoCapitalize="none"
               onChangeText={(text) => this.handlePatientEmail(text)}

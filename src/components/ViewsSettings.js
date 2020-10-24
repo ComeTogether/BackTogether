@@ -71,6 +71,7 @@ export function PrivacyPolicy() {
             autoCorrect={false}
             onChangeText={setPassword}
             textContentType='password'
+            textContentType="password"
             value={password}
             style={styles.textInput}
             secureTextEntry={true}

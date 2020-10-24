@@ -1,6 +1,6 @@
 import React from 'react';
 import { RNCamera } from 'react-native-camera';
-import { Image, TouchableHighlight, Modal, StyleSheet, View, Text, TextInput, ScrollView } from 'react-native';
+import { Image, TouchableHighlight, Modal, StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import {JsonRpc, RpcError } from 'eosjs';
 import { sha256 } from 'react-native-sha256';

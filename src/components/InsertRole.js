@@ -194,6 +194,7 @@ class InsertRole extends Component {
             <TextInput
               style={styles.input}
               value={this.state.userEmail}
+              textContentType="emailAddress"
               underlineColorAndroid="transparent"
               placeholder="e.g. user@gmail.com"
               placeholderTextColor="grey"

@@ -148,6 +148,7 @@ export default function Login_Send_Email({ navigation }) {
           <TextInput
             autoCorrect={true}
             onChangeText={setEmail}
+            textContentType="emailAddress"
             value={email}
             style={styles.textInput}
             placeholder="Email"

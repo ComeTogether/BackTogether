@@ -15,6 +15,7 @@ import auth from "@react-native-firebase/auth";
 export default function SettingsUserProfile() {
   const [fullName, setFullName] = React.useState("");
   const [count, setCount] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const navigation = useNavigation();
 
   const backfunc = () => {
@@ -48,6 +49,7 @@ export default function SettingsUserProfile() {
       .then((doc) => {
         if (!doc.empty) {
           setFullName(doc.data().fullName);
+          setEmail(doc.data().email)
         }
       });
   }, []);
@@ -99,8 +101,17 @@ export default function SettingsUserProfile() {
         <TextInput
           autoCorrect={false}
           onChangeText={setFullName}
-          textContentType="text"
+          textContentType="name"
           value={fullName}
+          style={styles.textInput}
+        />
+
+        <Text style={styles.texts}>Email</Text>
+        <TextInput
+          autoCorrect={false}
+          onChangeText={setEmail}
+          editable={false}
+          value={email}
           style={styles.textInput}
         />
         <TouchableOpacity
