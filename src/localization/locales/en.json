@@ -1,0 +1,13 @@
+ {
+  "insertRole": {
+    "title": "Set User's Role"
+  },
+  "settings": {
+    "password": "Change Password",
+    "language": "Change Language",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "delete": "Delete Account",
+    "logout": "Logout"
+  }
+}

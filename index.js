@@ -13,6 +13,7 @@ import React from 'react'
 import messaging from '@react-native-firebase/messaging';
 import {connect} from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly'
+import './src/localization/index';
 
 
 // Register background handler

@@ -15,6 +15,7 @@ import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
 import { connect } from "react-redux";
 import Snackbar from "react-native-snackbar";
+import { withTranslation } from 'react-i18next';
 
 const ses = new AWS.SES({
   accessKeyId: "AKIAXQFEMNA4AWKM4HW5",
@@ -40,6 +41,7 @@ const snack = (msg, color = "red") => {
 };
 
 class InsertRole extends Component {
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -163,6 +165,7 @@ class InsertRole extends Component {
   };
 
   render() {
+    const { t } = this.props;
     if (this.state.wait) {
       return (
         <View
@@ -179,7 +182,7 @@ class InsertRole extends Component {
       return (
         <View style={{ flex: 1, backgroundColor: "#efeff5" }}>
           <ScrollView contentContainerStyle={{ backgroundColor: "#efeff5" }}>
-            <Text style={styles.title}>Set User's Role</Text>
+            <Text style={styles.title}>{t('insertRole:title')}</Text>
 
             <Text style={styles.label}>User's email</Text>
             <TextInput
@@ -236,7 +239,9 @@ const mapStateToProps = (state) => ({
   userToken: state.auth.userToken,
 });
 
-export default connect(mapStateToProps)(InsertRole);
+
+
+export default connect(mapStateToProps)(withTranslation()(InsertRole));
 
 const styles = StyleSheet.create({
   container: {

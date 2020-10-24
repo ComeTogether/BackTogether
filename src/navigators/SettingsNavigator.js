@@ -1,11 +1,13 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PrivacyPolicy, TermsOfUse, DeleteAccount } from '../components/ViewsSettings';
-import { SettingsScreen, Logout, ChangePassword } from '../components';
+import { SettingsScreen, Logout, ChangePassword, ChangeLanguage } from '../components';
+import { useTranslation } from 'react-i18next';
 
 const Certificate = createStackNavigator();
 
 const CertificateNavigator = () => {
+    const { t } = useTranslation();
     const config = {
         animation: 'spring',
         config: {
@@ -35,6 +37,15 @@ const CertificateNavigator = () => {
                 transitionSpec: {
                   open: config,
                   close: config,
+                }}}
+            />
+
+            <Certificate.Screen name='Language' component={ChangeLanguage} 
+                options={{
+                title: 'Change Language',
+                transitionSpec: {
+                    open: config,
+                    close: config,
                 }}}
             />
 
