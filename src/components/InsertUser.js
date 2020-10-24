@@ -117,7 +117,6 @@ class InsertUser extends Component {
                     .doc(data.user.uid)
                     .set({
                       email: email,
-                      one_time_password: defaultNum,
                       stepSeen: false,
                       id: data.user.uid,
                       role: "user",
