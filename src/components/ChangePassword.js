@@ -51,7 +51,11 @@ const ChangePassword = ({currentpass, newpass, confpass, status, repeat, dispatc
     }
 
     const reset = async () => {
-      if( currentpass == "") snack('Password can not be empty', 'red')
+      if( currentpass == "" || newpass == ""){ 
+         replicabackbutton();
+         snack('Password can not be empty', 'red');
+         return ;
+      }
       if( confpass == newpass ){
          const msg = await resetPassUser(currentpass, newpass);
          if( msg ){
@@ -93,7 +97,7 @@ const ChangePassword = ({currentpass, newpass, confpass, status, repeat, dispatc
           <TouchableOpacity style={{marginRight:18}} onPress={backfunc}>
               <Image style={{width:24, height:24}} source={require('../../images/back.png')} />
           </TouchableOpacity>
-          <Text style={{fontWeight:'bold', fontSize:18, color:'dimgrey'}}>Reset Password</Text>
+          <Text style={{fontWeight:'bold', fontSize:18, color:'dimgrey'}}>Change Password</Text>
         </View>
         <View style={{flexGrow:2, flexDirection:'column'}}>
         <Text style={styles.texts}>{status? "Enter your existing passcode": repeat? "Confirm your new passcode":"Create your new passcode"}</Text>

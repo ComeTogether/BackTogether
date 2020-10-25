@@ -12,15 +12,16 @@ import { Picker } from "@react-native-community/picker";
 import { DropdownRoles } from "../data";
 import AWS from "aws-sdk";
 import firestore from "@react-native-firebase/firestore";
-import auth from "@react-native-firebase/auth";
 import { connect } from "react-redux";
 import Snackbar from "react-native-snackbar";
+import { secondaryApp } from "../../App";
+import {AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_API_VERSION} from "@env"
 
 const ses = new AWS.SES({
-  accessKeyId: "AKIAXQFEMNA4AWKM4HW5",
-  secretAccessKey: "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",
-  region: "eu-west-1",
-  apiVersion: "2010-12-01",
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  region: AWS_REGION,
+  apiVersion: AWS_API_VERSION,
 });
 
 const snack = (msg, color = "red") => {
@@ -89,27 +90,32 @@ class InsertRole extends Component {
           //change only if user has specific role
           if (
             (usersData.role === "user" || usersData.role === "health") &&
-            (usersData.healthCenter === undefined ||
-              usersData.healthCenter === this.props.userToken.healthCenter)
+            (usersData.authorityName === undefined ||
+              usersData.authorityName === this.props.userToken.authorityName)
           ) {
             firestore()
               .collection("users")
               .doc(doc.docs[0].ref.id)
               .update({
                 role: role,
-                healthCenter: this.props.userToken.healthCenter,
+                authorityName: this.props.userToken.authorityName,
               });
             this.setState({ wait: false });
+            this.setState({ userEmail: "" });
             snack("User's role has been updated!", "green");
-          }else {
+          } else {
             this.setState({ wait: false });
-            snack("You don't have the permission to change user's role!", "red");
+            snack(
+              "You don't have the permission to change user's role!",
+              "red"
+            );
           }
         } else {
           //user dont exist, so register him, and add him to database.
           const defaultNum = Math.floor(100000 + Math.random() * 900000); //6 digits default number
 
-          auth()
+          secondaryApp
+            .auth()
             .createUserWithEmailAndPassword(
               email_trimmed,
               defaultNum.toString()
@@ -120,11 +126,10 @@ class InsertRole extends Component {
                 .doc(data.user.uid)
                 .set({
                   email: email_trimmed,
-                  one_time_password: defaultNum,
                   stepSeen: false,
                   id: data.user.uid,
                   role: role,
-                  healthCenter: this.props.userToken.healthCenter
+                  authorityName: this.props.userToken.authorityName,
                 });
 
               //send email with his code.
@@ -159,6 +164,10 @@ class InsertRole extends Component {
               console.log(error);
             });
         }
+      })
+      .catch((err) => {
+        snack("Something went wrong...", "red");
+        this.setState({ wait: false });
       });
   };
 
@@ -184,6 +193,8 @@ class InsertRole extends Component {
             <Text style={styles.label}>User's email</Text>
             <TextInput
               style={styles.input}
+              value={this.state.userEmail}
+              textContentType="emailAddress"
               underlineColorAndroid="transparent"
               placeholder="e.g. user@gmail.com"
               placeholderTextColor="grey"
@@ -195,9 +206,8 @@ class InsertRole extends Component {
             <View style={styles.typeDropdown}>
               <Picker
                 selectedValue={this.state.role}
-                style={{ height: Platform.OS === 'ios' ? 200 : 40 }}
+                style={{ height: Platform.OS === "ios" ? 200 : 40 }}
                 onValueChange={(itemValue) => {
-                  console.log(itemValue);
                   DropdownRoles.forEach((item) => {
                     if (item.value == itemValue) {
                       this.setState({ role: itemValue });
@@ -253,7 +263,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     height: 40,
     borderRadius: 10,
-    padding: 8
+    padding: 8,
   },
   typeDropdown: {
     marginHorizontal: 18,

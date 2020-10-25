@@ -25,3 +25,5 @@ export {default as ResetPassEmailSent} from './ResetPassEmailSent';
 export {default as ResetPass} from './ResetPass';
 export {default as InsertRole} from './InsertRole';
 export {default as ChangePassword} from './ChangePassword';
+export {default as SettingsUserProfile} from './SettingsUserProfile';
+

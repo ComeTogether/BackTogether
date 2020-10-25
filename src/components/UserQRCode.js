@@ -22,13 +22,13 @@ const UserQRCode = ({ navigation, userToken }) => {
 
     un = query.onSnapshot((querySnapshot) => {
       const data = [];
-
-      querySnapshot.forEach((documentSnapshot) => {
-        documentSnapshot.data().status === "accepted" &&
-          data.push({
-            ...documentSnapshot.data(),
-          });
-      });
+      querySnapshot &&
+        querySnapshot.forEach((documentSnapshot) => {
+          documentSnapshot.data().status === "accepted" &&
+            data.push({
+              ...documentSnapshot.data(),
+            });
+        });
 
       //remove duplicate tests (of the same type) by date
       const removedDuplicates = [];
@@ -142,7 +142,7 @@ const UserQRCode = ({ navigation, userToken }) => {
           }}
         >
           <Image
-            style={{ width: 48, height: 70, opacity: 0.9, marginVertical: 6 }}
+            style={{ width: 70, height: 70, opacity: 0.9, marginVertical: 6 }}
             source={require("../../images/qr.png")}
           />
           <Text style={{ fontSize: 20, color: "rgb(0,103,189)" }}>

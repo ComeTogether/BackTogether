@@ -2,18 +2,6 @@ import { users } from "../../users";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 
-export const loginProcess = (password) => {
-  var specificUser = "";
-
-  //DATABASE  needed in here, for the one time password
-  users.forEach((user) => {
-    if (user.one_time_password == password) specificUser = user;
-  });
-  return specificUser;
-};
-
-// resetPassUser('1821re','18211821')
-
 export const resetPassUser = async (oldPass, newPass) => {
   const user = auth().currentUser;
   const provider = auth.EmailAuthProvider;

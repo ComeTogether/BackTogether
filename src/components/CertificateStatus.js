@@ -6,7 +6,8 @@ import {
   Image,
   ActivityIndicator,
   RefreshControl,
-  StyleSheet
+  StyleSheet,
+  SafeAreaView
 } from 'react-native';
 import { Test } from '../components';
 import firestore from "@react-native-firebase/firestore";
@@ -83,7 +84,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
     },[refresh]);
 
   const onSelect = React.useCallback((id, authority, issueDate, testType, status, result, ref) => {
-      navigation.navigate('Summary',{id:id, authorityName: authority, issueDate: issueDate, status:status, testType: testType, result: result, ref: ref})
+      navigation.navigate('Summary',{id:id, authorityName: authority, issueDate: issueDate, status:status, testType: testType, result: result, ref: ref, changeStatus: handleStatusChange})
     })
     if(wait){
       return(
@@ -94,8 +95,8 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
     }
     else {
       return(
-        <View style={{backgroundColor:'#efeff5'}}>
-          <Text style={{ backgroundColor:'#efeff5' , fontSize:22, textAlign:'center', marginTop:20}}>Certificate Status</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#efeff5" }}>
+        <Text style={{ backgroundColor:'#efeff5' , fontSize:22, textAlign:'center', marginTop:20}}>Certificate Status</Text>
 
             <View style={styles.typeDropdown}>
               <Picker
@@ -161,7 +162,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
           </View>
           )
         }
-        </View>
+        </SafeAreaView>
       )
     }
 };

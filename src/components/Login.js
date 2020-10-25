@@ -77,6 +77,7 @@ export default function Login({ navigation }) {
             <TextInput
               autoCorrect={true}
               onChangeText={setEmail}
+              textContentType="emailAddress"
               value={email}
               style={styles.textInput}
               secureTextEntry={false}
@@ -85,6 +86,7 @@ export default function Login({ navigation }) {
             <TextInput
               autoCorrect={false}
               onChangeText={setPassword}
+              textContentType="password"
               value={password}
               style={styles.textInput}
               secureTextEntry={true}

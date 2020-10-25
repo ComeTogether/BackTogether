@@ -25,7 +25,7 @@ const CertificateHistory = ({ navigation, userToken }) => {
     un = query.onSnapshot((querySnapshot) => {
       const data = [];
 
-      querySnapshot.forEach((documentSnapshot) => {
+      querySnapshot && querySnapshot.forEach((documentSnapshot) => {
         documentSnapshot.data().status === "accepted" &&
           data.push({
             ...documentSnapshot.data(),

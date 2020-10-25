@@ -6,21 +6,25 @@ import {
   Text,
   TextInput,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
 } from "react-native";
 
 import AWS from "aws-sdk";
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
-import Snackbar from 'react-native-snackbar';
-
-
+import Snackbar from "react-native-snackbar";
+import {
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_REGION,
+  AWS_API_VERSION,
+} from "@env";
 
 const ses = new AWS.SES({
-  accessKeyId: "AKIAXQFEMNA4AWKM4HW5",
-  secretAccessKey: "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",
-  region: "eu-west-1",
-  apiVersion: "2010-12-01",
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  region: AWS_REGION,
+  apiVersion: AWS_API_VERSION,
 });
 
 export default function Login_Send_Email({ navigation }) {
@@ -31,16 +35,18 @@ export default function Login_Send_Email({ navigation }) {
   const snack = (msg) => {
     Snackbar.show({
       text: `${msg}`,
-      textColor:'red',
-      backgroundColor:'white',
+      textColor: "red",
+      backgroundColor: "white",
       duration: Snackbar.LENGTH_SHORT,
       action: {
-        text: 'UNDO',
-        textColor: 'rgb(0, 103, 187)',
-        onPress: () => { Snackbar.dismiss()},
+        text: "UNDO",
+        textColor: "rgb(0, 103, 187)",
+        onPress: () => {
+          Snackbar.dismiss();
+        },
       },
     });
-  }
+  };
 
   const validation = React.useCallback(() => {
     const email_trimmed = email.toLowerCase().trim();
@@ -63,106 +69,67 @@ export default function Login_Send_Email({ navigation }) {
     //check if user exists in our database already
     const email_trimmed = email.toLowerCase().trim();
     setWait(true);
-    firestore()
-      .collection("users")
-      .where("email", "==", email_trimmed)
-      .get()
-      .then((doc) => {
-        if (!doc.empty) {
-          //user exists, so get his one time password
-          if (doc.docs[0].data().one_time_password === "") {
-            snack(
-              `You are a registered user, if you don't remember your password, please reset it!`
-            );
+
+    const defaultNum = Math.floor(100000 + Math.random() * 900000); //6 digits default number
+
+    auth()
+      .createUserWithEmailAndPassword(email_trimmed, defaultNum.toString())
+      .then((data) => {
+        firestore()
+          .collection("users")
+          .doc(data.user.uid)
+          .set({
+            email: email_trimmed,
+            stepSeen: false,
+            id: data.user.uid,
+            role: "user",
+          });
+
+        //send email with his code.
+        var TemplateData = {
+          passwrod: defaultNum,
+        };
+
+        var params = {
+          Source: "info@cometogether.network",
+          Destination: {
+            ToAddresses: [email_trimmed],
+          },
+          Template: "BackTogetherLoginPassword" /* required */,
+          TemplateData: JSON.stringify(TemplateData) /* required */,
+        };
+
+        ses
+          .sendTemplatedEmail(params)
+          .promise()
+          .then(() => {
+            //redirect to 'email sent page'
             setWait(false);
-          } else {
-            //send email, if one time password is set
-            var TemplateData = {
-              passwrod: doc.docs[0].data().one_time_password.toString(),
-            };
-
-            var params = {
-              Source: "info@cometogether.network",
-              Destination: {
-                ToAddresses: [email_trimmed],
-              },
-              Template: "BackTogetherLoginPassword" /* required */,
-              TemplateData: JSON.stringify(TemplateData) /* required */,
-            };
-
-            ses
-              .sendTemplatedEmail(params)
-              .promise()
-              .then(() => {
-                setWait(false);
-                //redirect to 'email sent page'
-                navigation.navigate("EmailSent");
-              });
-          }
-        } else {
-          //user dont exist, so register him, and add him to database.
-          const defaultNum = Math.floor(100000 + Math.random() * 900000); //6 digits default number
-
-          auth()
-            .createUserWithEmailAndPassword(
-              email_trimmed,
-              defaultNum.toString()
-            )
-            .then((data) => {
-              firestore()
-                .collection("users")
-                .doc(data.user.uid)
-                .set({
-                  email: email_trimmed,
-                  one_time_password: defaultNum,
-                  stepSeen: false,
-                  id: data.user.uid,
-                  role: "user",
-                });
-
-              //send email with his code.
-              var TemplateData = {
-                passwrod: defaultNum,
-              };
-
-              var params = {
-                Source: "info@cometogether.network",
-                Destination: {
-                  ToAddresses: [email_trimmed],
-                },
-                Template: "BackTogetherLoginPassword" /* required */,
-                TemplateData: JSON.stringify(TemplateData) /* required */,
-              };
-
-              ses
-                .sendTemplatedEmail(params)
-                .promise()
-                .then(() => {
-                  //redirect to 'email sent page'
-                  setWait(false);
-                  navigation.navigate("EmailSent");
-                });
-            })
-            .catch((error) => {
-              if (error.code === "auth/email-already-in-use") {
-                snack("That email address is already in use!");
-                setWait(false);
-              }
-
-              if (error.code === "auth/invalid-email") {
-                snack("That email address is invalid!");
-                setWait(false);
-              }
-              setWait(false);
-              console.log(error);
-            });
+            navigation.navigate("EmailSent");
+          });
+      })
+      .catch((error) => {
+        if (error.code === "auth/email-already-in-use") {
+          snack(
+            "That email address is already in use! If you don't remember your password, please reset it."
+          );
+          setWait(false);
         }
+
+        if (error.code === "auth/invalid-email") {
+          snack("That email address is invalid!");
+          setWait(false);
+        }
+        setWait(false);
+        console.log(error);
       });
   };
 
   if (wait) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", backgroundColor:'efeff5' }}>
+      <View
+        style={{ flex: 1, justifyContent: "center", backgroundColor: "efeff5" }}
+      >
         <ActivityIndicator size="large" color="rgb(0, 103, 187)" />
       </View>
     );
@@ -174,36 +141,37 @@ export default function Login_Send_Email({ navigation }) {
           source={require("../../images/BT_logoWithName.png")}
           resizeMode="contain"
         />
-       {title && <Text style={styles.header}> One-Time Password</Text>}
-          <View style={styles.rowContainer}>
-            <Text style={styles.label}>Submit your email</Text>
+        {title && <Text style={styles.header}> One-Time Password</Text>}
+        <View style={styles.rowContainer}>
+          <Text style={styles.label}>Submit your email</Text>
 
-            <TextInput
-              autoCorrect={true}
-              onChangeText={setEmail}
-              value={email}
-              style={styles.textInput}
-              placeholder="Email"
-              onFocus={()=>setTitle(false)}
-            />
-            <TouchableOpacity
-              title="goToEmail"
-              style={styles.goToEmail}
-              onPress={() => {
-                navigation.navigate("SignIn");
-              }}
-            >
-              <Text style={styles.labelEmail}>Go to login</Text>
-            </TouchableOpacity>
-          </View>
-
+          <TextInput
+            autoCorrect={true}
+            onChangeText={setEmail}
+            textContentType="emailAddress"
+            value={email}
+            style={styles.textInput}
+            placeholder="Email"
+            onFocus={() => setTitle(false)}
+          />
           <TouchableOpacity
-            style={styles.scan}
-            title="SendEmail"
-            onPress={sendEmail}
+            title="goToEmail"
+            style={styles.goToEmail}
+            onPress={() => {
+              navigation.navigate("SignIn");
+            }}
           >
-            <Text style={styles.button}>Send Password</Text>
+            <Text style={styles.labelEmail}>Go to login</Text>
           </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={styles.scan}
+          title="SendEmail"
+          onPress={sendEmail}
+        >
+          <Text style={styles.button}>Send Password</Text>
+        </TouchableOpacity>
       </View>
     );
 }
@@ -227,11 +195,11 @@ const styles = StyleSheet.create({
   labelEmail: {
     fontSize: 12,
     color: "#rgb(0, 103, 187)",
-    textAlign:'right'
+    textAlign: "right",
   },
   goToEmail: {
     width: "100%",
-    marginVertical: 10
+    marginVertical: 10,
   },
   scan: {
     justifyContent: "center",
@@ -241,9 +209,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#rgb(0, 103, 187)",
   },
   logo: {
-    width:90,
-    height:90,
-    alignSelf:'center',
+    width: 90,
+    height: 90,
+    alignSelf: "center",
     marginBottom: 20,
     marginTop: 20,
   },
@@ -274,6 +242,6 @@ const styles = StyleSheet.create({
     paddingLeft: 6,
     borderRadius: 10,
     backgroundColor: "white",
-    height: Platform.OS === 'ios' ? 40 : undefined
+    height: Platform.OS === "ios" ? 40 : undefined,
   },
 });

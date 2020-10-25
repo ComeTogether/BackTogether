@@ -62,6 +62,7 @@ function PersonalInfos({userToken, dispatch }) {
           <TextInput
             autoCorrect={true}
             onChangeText={setFullName}
+            textContentType="name"
             value={fullName}
             placeholder="Full Name"
             style={styles.textInput}
