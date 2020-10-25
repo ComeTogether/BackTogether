@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PrivacyPolicy, TermsOfUse, DeleteAccount } from '../components/ViewsSettings';
-import { SettingsScreen, Logout, ChangePassword, SettingsUserProfile } from '../components';
+import { SettingsScreen, Logout, ChangePassword, SettingsUserProfile, Contact } from '../components';
 
 const Certificate = createStackNavigator();
 
@@ -18,18 +18,18 @@ const CertificateNavigator = () => {
         },
       };
     return(
-        <Certificate.Navigator 
-            headerMode='none' 
+        <Certificate.Navigator
+            headerMode='none'
             mode='modal'
             screenOptions={{
                 // cardStyle: { backgroundColor: 'transparent'},
                 cardOverlayEnabled: true,
-            }} 
+            }}
         >
             <Certificate.Screen name='Options' component={SettingsScreen}
              options={{header : ({ scene, previous, navigation }) => ( null)}}/>
-            
-            <Certificate.Screen name='Terms' component= {TermsOfUse} 
+
+            <Certificate.Screen name='Terms' component= {TermsOfUse}
              options={{
                 title:'Terms of Use',
                 transitionSpec: {
@@ -38,7 +38,7 @@ const CertificateNavigator = () => {
                 }}}
             />
 
-            <Certificate.Screen name='Change' component= {ChangePassword} 
+            <Certificate.Screen name='Change' component= {ChangePassword}
                 options={{
                 title:'Change Password',
                 transitionSpec: {
@@ -47,7 +47,7 @@ const CertificateNavigator = () => {
                 }}}
             />
 
-            <Certificate.Screen name='Delete' component= {DeleteAccount} 
+            <Certificate.Screen name='Delete' component= {DeleteAccount}
                 options={{
                 title:'Delete Account',
                 transitionSpec: {
@@ -56,7 +56,7 @@ const CertificateNavigator = () => {
                 }}}
             />
 
-            <Certificate.Screen name='Privacy' component= {PrivacyPolicy} 
+            <Certificate.Screen name='Privacy' component= {PrivacyPolicy}
                 options={{
                 title:'Privacy Policy',
                 transitionSpec: {
@@ -65,26 +65,35 @@ const CertificateNavigator = () => {
                 }}}
             />
 
-            <Certificate.Screen name='Profile' component= {SettingsUserProfile} 
+            <Certificate.Screen name='Profile' component= {SettingsUserProfile}
                 options={{
                 title:'Profile',
                 transitionSpec: {
                     open: config,
                     close: config,
                 }}}
-            />  
-            
-            <Certificate.Screen name='Logout' component= {Logout} 
+            />
+
+          <Certificate.Screen name='Contact' component= {Contact}
+                              options={{
+                                title:'Contact',
+                                transitionSpec: {
+                                  open: config,
+                                  close: config,
+                                }}}
+          />
+
+          <Certificate.Screen name='Logout' component= {Logout}
                 options={{
                 title:'Logout',
                 transitionSpec: {
                     open: config,
                     close: config,
                 }}}
-            />  
+            />
 
         </Certificate.Navigator>
-    )   
+    )
 }
 
 export default CertificateNavigator;

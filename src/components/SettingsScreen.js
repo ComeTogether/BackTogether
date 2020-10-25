@@ -20,12 +20,13 @@ const SettingsScreen = ({navigation}) => {
                 <Text style={{fontWeight:'bold', fontSize:18, color:'dimgrey'}}>Settings</Text>
             </View>
             <View style={{backgroundColor:'white', borderRadius:10, marginHorizontal:18, marginBotton:20, paddingVertical:20}}>
-                <Settings icon={require("../../images/password.png")} name="Change Password" to='Change' />
+              <Settings icon={require("../../images/profile-settings.png")} name="Profile"  to='Profile' />
+              <Settings icon={require("../../images/password.png")} name="Change Password" to='Change' />
                 <Settings icon={require("../../images/privacy_policy.png")} name="Privacy Policy" to='Privacy' />
                 <Settings icon={require("../../images/terms.png")} name="Terms & Conditions" to='Terms' />
                 <Settings icon={require("../../images/delete.png")} name="Delete Account"  to='Delete' />
-                <Settings icon={require("../../images/profile-sttings.png")} name="Profile"  to='Profile' />
-                <Settings icon={require("../../images/logoutRed.png")} name="Logout"  to='Logout' />
+              <Settings icon={require("../../images/contactInfo.png")} name="Contact"  to='Contact' />
+              <Settings icon={require("../../images/logoutRed.png")} name="Logout"  to='Logout' />
             </View>
                 <Image style={{position:'absolute', bottom:40, width:90, height:90, alignSelf:'center'}} source={require('../../images/logo_name.png')} resizeMode='contain' />
           </ScrollView>
