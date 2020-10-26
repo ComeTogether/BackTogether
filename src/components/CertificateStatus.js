@@ -18,7 +18,7 @@ import {setCertificateStatusFilterLabel} from "../../actions";
 
 const db = firestore();
 
-//db.settings({ host: 'localhost:8080',  ssl: false });
+//db.settings({ host: 'localhost:8080',  ssl: false }); for local testing
 
 const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel, dispatch}) => {
   const [cert, setCert] = React.useState(null);

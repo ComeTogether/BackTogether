@@ -29,7 +29,7 @@ import {AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_API_VERSION} f
 
 const db = firestore();
 
-//db.settings({ host: 'localhost:8080',  ssl: false });
+//db.settings({ host: 'localhost:8080',  ssl: false }); for local testing
 
 const { TextEncoder, TextDecoder } = require("text-encoding");
 const defaultPrivateKey = "5K6FsMBtaNEvbFMaJbqNruSoKWoe5vLcZA8QEX6br3BxQhQp6cK"; // bob

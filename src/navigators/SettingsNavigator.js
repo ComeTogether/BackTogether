@@ -29,6 +29,15 @@ const CertificateNavigator = () => {
             <Certificate.Screen name='Options' component={SettingsScreen}
              options={{header : ({ scene, previous, navigation }) => ( null)}}/>
             
+            <Certificate.Screen name='Profile' component= {SettingsUserProfile} 
+                options={{
+                title:'Profile',
+                transitionSpec: {
+                    open: config,
+                    close: config,
+                }}}
+            />  
+            
             <Certificate.Screen name='Terms' component= {TermsOfUse} 
              options={{
                 title:'Terms of Use',
@@ -64,15 +73,6 @@ const CertificateNavigator = () => {
                     close: config,
                 }}}
             />
-
-            <Certificate.Screen name='Profile' component= {SettingsUserProfile} 
-                options={{
-                title:'Profile',
-                transitionSpec: {
-                    open: config,
-                    close: config,
-                }}}
-            />  
             
             <Certificate.Screen name='Logout' component= {Logout} 
                 options={{
