@@ -27,6 +27,10 @@ import { B } from "../components";
 import { secondaryApp } from "../../App";
 import {AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_API_VERSION} from "@env"
 
+const db = firestore();
+
+//db.settings({ host: 'localhost:8080',  ssl: false });
+
 const { TextEncoder, TextDecoder } = require("text-encoding");
 const defaultPrivateKey = "5K6FsMBtaNEvbFMaJbqNruSoKWoe5vLcZA8QEX6br3BxQhQp6cK"; // bob
 const signatureProvider = new JsSignatureProvider([defaultPrivateKey]);
@@ -99,7 +103,7 @@ class InsertUser extends Component {
   issue = async (dataParams, email) => {
     try {
       if (dataParams.testId && email) {
-        firestore()
+        db
           .collection("users")
           .where("email", "==", email)
           .get()
@@ -112,7 +116,7 @@ class InsertUser extends Component {
                 .auth()
                 .createUserWithEmailAndPassword(email, defaultNum.toString())
                 .then((data) => {
-                  firestore()
+                  db
                     .collection("users")
                     .doc(data.user.uid)
                     .set({
@@ -146,7 +150,7 @@ class InsertUser extends Component {
                       //redirect to 'email sent page'
                     });
 
-                  firestore()
+                  db
                     .collection("tests")
                     .add({
                       userId: id,
@@ -170,7 +174,7 @@ class InsertUser extends Component {
                 });
             } else {
               let id = res.docs[0].id;
-              firestore()
+              db
                 .collection("tests")
                 .add({
                   userId: id,

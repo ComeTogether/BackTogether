@@ -16,6 +16,10 @@ import {Picker} from "@react-native-community/picker";
 import {DropdownCertificateStatusFilterOptions} from "../data";
 import {setCertificateStatusFilterLabel} from "../../actions";
 
+const db = firestore();
+
+//db.settings({ host: 'localhost:8080',  ssl: false });
+
 const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel, dispatch}) => {
   const [cert, setCert] = React.useState(null);
   const [wait, setWait] = React.useState(true);
@@ -34,7 +38,7 @@ const CertificateStatus = ({navigation, userToken, certificateStatusFilterLabel,
 
     setWait(true);
 
-      let query = firestore()
+      let query = db
       .collection("tests");
     // conditionally add extra where clause if we don't want All the tests
       if (filter !== 'all') {

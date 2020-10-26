@@ -11,6 +11,10 @@ import { Test } from "../components";
 import firestore from "@react-native-firebase/firestore";
 import { connect } from "react-redux";
 
+const db = firestore();
+
+//db.settings({ host: 'localhost:8080',  ssl: false }); for local testing
+
 const CertificateHistory = ({ navigation, userToken }) => {
   const [cert, setCert] = React.useState(null);
   const [wait, setWait] = React.useState(true);
@@ -18,7 +22,7 @@ const CertificateHistory = ({ navigation, userToken }) => {
   let un = () => {};
 
   React.useEffect(() => {
-    const query = firestore()
+    const query = db
       .collection("tests")
       .where("userId", "==", userToken.id);
 
